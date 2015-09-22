@@ -49,14 +49,14 @@ if ($zone_id == "-1") {
 /*
   Check permissions
  */
-$user_is_zone_owner = verify_user_is_owner_zoneid($zone_id);
+$user_is_zone_owner = do_hook('verify_user_is_owner_zoneid' , $zone_id );
 if ($perm_meta_edit == "all" || ( $perm_meta_edit == "own" && $user_is_zone_owner == "1")) {
     $meta_edit = "1";
 } else {
     $meta_edit = "0";
 }
 
-(verify_permission('user_view_others')) ? $perm_view_others = "1" : $perm_view_others = "0";
+(do_hook('verify_permission' , 'user_view_others' )) ? $perm_view_others = "1" : $perm_view_others = "0";
 
 if ($perm_view == "none" || $perm_view == "own" && $user_is_zone_owner == "0") {
     error(ERR_PERM_VIEW_ZONE);
@@ -76,16 +76,16 @@ $record_count = count_zone_records($zone_id);
 $zone_templates = get_list_zone_templ($_SESSION['userid']);
 $zone_template_id = get_zone_template($zone_id);
 
-echo "   <h2>" . _('DNSSEC public records for zone') . " \"" . get_zone_name_from_id($zone_id) . "\"</h2>\n";
+echo "   <h1 class=\"page-header\">" . _('DNSSEC public records for zone') . " \"" . get_zone_name_from_id($zone_id) . "\"</h1>\n";
 
 echo "   <h3>" . _('DNSKEY') . "</h3>\n";
-$dnskey_record = dnssec_dnskey_record($domain_name);
+$dnskey_record = dnssec_get_dnskey_record($domain_name);
 echo $dnskey_record."<br>\n";
 
 echo "<br>";
 
 echo "   <h3>" . _('DS record') . "</h3>\n";
-$ds_records = dnssec_ds_records($domain_name);
+$ds_records = dnssec_get_ds_records($domain_name);
 foreach ($ds_records as $record) {
     echo $record."<br>\n";
 }

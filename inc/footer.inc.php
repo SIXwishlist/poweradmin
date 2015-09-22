@@ -28,26 +28,33 @@
  * @copyright   2010-2014 Poweradmin Development Team
  * @license     http://opensource.org/licenses/GPL-3.0 GPL
  */
-include_once('version.inc.php');
 
 global $db;
 if (is_object($db)) {
     $db->disconnect();
 }
-?>
-</div> <!-- /content -->
-<div class="footer">
-    <a href="http://www.poweradmin.org/">a complete(r) <strong>poweradmin</strong><?php
-        if (isset($_SESSION["userid"])) {
-            echo " v $VERSION";
-        }
-        ?></a> - <a href="http://www.poweradmin.org/credits.html">credits</a>
-</div>
-<?php
+
+if (isset($_SESSION ["userid"])) {
+    echo " </div> <!-- /content --> </div>\n";
+} else {
+    echo "</div>\n";
+    echo "<div class=\"footer\">\n";
+    echo "  <a href=\"http://www.poweradmin.org\">a complete(r) <strong>poweradmin</strong></a> - <a href=\"http://www.poweradmin.org/credits.html\">credits</a>";
+    echo "</div>\n";
+}
+
 if (file_exists('inc/custom_footer.inc.php')) {
     include('inc/custom_footer.inc.php');
 }
 ?>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<![endif]-->
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="../../style/js/ie10-viewport-bug-workaround.js"></script>
 </body>
 </html>
 

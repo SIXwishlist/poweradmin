@@ -79,7 +79,7 @@ if (isset($_POST['update_zones'])) {
     }
 }
 
-if (!(verify_permission('zone_master_add')) || !$owner) {
+if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
     error(ERR_PERM_EDIT_ZONE_TEMPL);
 } else {
     if (zone_templ_id_exists($zone_templ_id) == "0") {
@@ -87,7 +87,7 @@ if (!(verify_permission('zone_master_add')) || !$owner) {
     } else {
         $record_count = count_zone_templ_records($zone_templ_id);
         $templ_details = get_zone_templ_details($zone_templ_id);
-        echo "   <h2>" . _('Edit zone template') . " \"" . $templ_details['name'] . "\"</h2>\n";
+        echo "    <h1 class=\"page-header\">" . _('Edit zone template') . " \"" . $templ_details['name'] . "\"</h1>\n";
 
         echo "   <div class=\"showmax\">\n";
         show_pages($record_count, $iface_rowamount, $zone_templ_id);
@@ -95,10 +95,11 @@ if (!(verify_permission('zone_master_add')) || !$owner) {
 
         $records = get_zone_templ_records($zone_templ_id, ROWSTART, $iface_rowamount, RECORD_SORT_BY);
         if ($records == "-1") {
-            echo " <p>" . _("This template zone does not have any records yet.") . "</p>\n";
+            echo "      <h5>" . _("This template zone does not have any records yet.") . "</h5>\n";
         } else {
-            echo "   <form method=\"post\" action=\"\">\n";
-            echo "   <table>\n";
+            echo "   <form class=\"form-horizontal\" method=\"post\" action=\"\">\n";
+            echo "   <table class=\"table\">\n";
+            echo "    <thead>\n";
             echo "    <tr>\n";
             echo "     <th>&nbsp;</th>\n";
             echo "     <th><a href=\"edit_zone_templ.php?id=" . $zone_templ_id . "&amp;record_sort_by=name\">" . _('Name') . "</a></th>\n";
@@ -107,18 +108,20 @@ if (!(verify_permission('zone_master_add')) || !$owner) {
             echo "     <th><a href=\"edit_zone_templ.php?id=" . $zone_templ_id . "&amp;record_sort_by=prio\">" . _('Priority') . "</a></th>\n";
             echo "     <th><a href=\"edit_zone_templ.php?id=" . $zone_templ_id . "&amp;record_sort_by=ttl\">" . _('TTL') . "</a></th>\n";
             echo "    </tr>\n";
+            echo "    </thead>\n";
+            echo "    <tbody>\n";
             foreach ($records as $r) {
                 echo "    <tr>\n";
-                echo "     <td class=\"n\">\n";
+                echo "     <td>\n";
                 echo "    <input type=\"hidden\" name=\"record[" . $r['id'] . "][rid]\" value=\"" . $r['id'] . "\">\n";
-                echo "      <a href=\"edit_zone_templ_record.php?id=" . $r['id'] . "&amp;zone_templ_id=" . $zone_templ_id . "\">
-						<img src=\"images/edit.gif\" alt=\"[ " . _('Edit record') . " ]\"></a>\n";
-                echo "      <a href=\"delete_zone_templ_record.php?id=" . $r['id'] . "&amp;zone_templ_id=" . $zone_templ_id . "\">
-						<img src=\"images/delete.gif\" ALT=\"[ " . _('Delete record') . " ]\" BORDER=\"0\"></a>\n";
-                echo "     </td>\n";
-                echo "      <td class=\"u\"><input class=\"wide\" name=\"record[" . $r['id'] . "][name]\" value=\"" . $r['name'] . "\"></td>\n";
-                echo "      <td class=\"u\">\n";
-                echo "       <select name=\"record[" . $r['id'] . "][type]\">\n";
+                echo "      <label><a class=\"btn btn-warning btn-sm\" role=\"button\" href=\"edit_zone_templ_record.php?id=" . $r['id'] . "&amp;zone_templ_id=" . $zone_templ_id . "\">
+				<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\" alt=\"[ " . _('Edit record') . " ]\"></span></a>\n";
+                echo "      <a class=\"btn btn-danger btn-sm\" role=\"button\" href=\"delete_zone_templ_record.php?id=" . $r['id'] . "&amp;zone_templ_id=" . $zone_templ_id . "\">
+				<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" alt=\"[ " . _('Delete record') . " ]\"></span></a></label>\n";
+                echo "     </td><td>\n";
+                echo "      <input class=\"form-control input-sm\" name=\"record[" . $r['id'] . "][name]\" value=\"" . $r['name'] . "\"></td>\n";
+                echo "      <td>\n";
+                echo "       <select class=\"form-control input-sm\" name=\"record[" . $r['id'] . "][type]\">\n";
                 $found_selected_type = false;
                 foreach (get_record_types() as $type_available) {
                     if ($type_available == $r['type']) {
@@ -142,59 +145,77 @@ if (!(verify_permission('zone_master_add')) || !$owner) {
                 }
                 echo "       </select>\n";
                 echo "      </td>\n";
-                echo "      <td class=\"u\"><input class=\"wide\" name=\"record[" . $r['id'] . "][content]\" value='" . $clean_content . "'></td>\n";
+                echo "      <td><input class=\"form-control input-sm\" name=\"record[" . $r['id'] . "][content]\" value='" . $clean_content . "'></td>\n";
                 if ($r['type'] == "MX" || $r['type'] == "SRV") {
-                    echo "      <td class=\"u\"><input name=\"record[" . $r['id'] . "][prio]\" value=\"" . $r['prio'] . "\"></td>\n";
+                    echo "      <td><input size=\"5\" class=\"form-control input-sm\" name=\"record[" . $r['id'] . "][prio]\" value=\"" . $r['prio'] . "\"></td>\n";
                 } else {
-                    echo "      <td class=\"n\">&nbsp;</td>\n";
+                    echo "      <td>&nbsp;</td>\n";
                 }
-                echo "      <td class=\"u\"><input name=\"record[" . $r['id'] . "][ttl]\" value=\"" . $r['ttl'] . "\"></td>\n";
+                echo "      <td><input size=\"5\" class=\"form-control input-sm\" name=\"record[" . $r['id'] . "][ttl]\" value=\"" . $r['ttl'] . "\"></td>\n";
                 echo "     </tr>\n";
             }
             echo "     <tr>\n";
-            echo "      <td colspan=\"6\"><br><b>Hint:</b></td>\n";
+            echo "      <td colspan=\"6\"><h5><strong>Hint:</strong></h5>\n";
+            echo "     " . _('The following placeholders can be used in template records') . "\n";
+            echo "     <p>&nbsp;&nbsp;&nbsp;&nbsp; * [ZONE] - " . _('substituted with current zone name') . "<br>";
+            echo "&nbsp;&nbsp;&nbsp;&nbsp; * [SERIAL] - " . _('substituted with current date and 2 numbers') . " (YYYYMMDD + 00)</p></td>\n";
             echo "     </tr>\n";
             echo "     <tr>\n";
-            echo "      <td colspan=\"6\">" . _('The following placeholders can be used in template records') . "</td>\n";
-            echo "     </tr>\n";
-            echo "     <tr>\n";
-            echo "      <td colspan=\"6\"><br>&nbsp;&nbsp;&nbsp;&nbsp; * [ZONE] - " . _('substituted with current zone name') . "<br>";
-            echo "&nbsp;&nbsp;&nbsp;&nbsp; * [SERIAL] - " . _('substituted with current date and 2 numbers') . " (YYYYMMDD + 00)</td>\n";
-            echo "     </tr>\n";
-            echo "     <tr>\n";
-            echo "      <td colspan=\"6\"><br>Save as new template:</td>\n";
-            echo "     </tr>\n";
-            echo "      <tr>\n";
-            echo "       <th>" . _('Template Name') . "</th>\n";
-            echo "       <td><input class=\"wide\" type=\"text\" name=\"templ_name\" value=\"\"></td>\n";
-            echo "      </tr>\n";
-            echo "      <tr>\n";
-            echo "       <th>" . _('Template Description') . "</th>\n";
-            echo "       <td><input class=\"wide\" type=\"text\" name=\"templ_descr\" value=\"\"></td>\n";
-            echo "      </tr>\n";
+            echo "      <td colspan=\"6\"><h5>Save as new template:</h5>\n";
+            
+            echo "       <div class=\"form-group\">\n";
+            echo "        <label for=\"templ_name\" class=\"col-sm-2 control-label\">" . _('Template Name') . "</label>\n";
+            echo "        <div class=\"col-sm-10\">\n";
+            echo "         <input type=\"text\" class=\"form-control\" id=\"templ_name\" name=\"templ_name\" placeholder=\"New Template Name\">\n";
+            echo "        </div>\n";
+            echo "       </div>\n";
+            echo "       <div class=\"form-group\">\n";
+            echo "        <label for=\"templ_descr\" class=\"col-sm-2 control-label\">" . _('Template Description') . "</label>\n";
+            echo "        <div class=\"col-sm-10\">\n";
+            echo "         <input type=\"text\" class=\"form-control\" id=\"templ_descr\" name=\"templ_descr\" placeholder=\"New Template Description\">\n";
+            echo "        </div>\n";
+            echo "       </div>\n";
+            echo "       <div class=\"form-group\">\n";
+            echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+            echo "          <input type=\"submit\" class=\"btn btn-default\" name=\"commit\" value=\"" . _('Commit changes') . "\">\n";
+            echo "          <input type=\"reset\" class=\"btn btn-default\" name=\"reset\" value=\"" . _('Reset changes') . "\">\n";
+            echo "          <input type=\"submit\" class=\"btn btn-default\" name=\"save_as\" value=\"" . _('Save as template') . "\">\n";
+            echo "          <input type=\"submit\" class=\"btn btn-default\" name=\"update_zones\" value=\"" . _('Update zones') . "\">\n";
+            echo "        </div>\n";
+            echo "       </div>\n";
+
+            echo "      </td></tr>\n";
+            echo "    </tbody>\n";
             echo "    </table>\n";
-            echo "     <input type=\"submit\" class=\"button\" name=\"commit\" value=\"" . _('Commit changes') . "\">\n";
-            echo "     <input type=\"reset\" class=\"button\" name=\"reset\" value=\"" . _('Reset changes') . "\">\n";
-            echo "     <input type=\"submit\" class=\"button\" name=\"save_as\" value=\"" . _('Save as template') . "\">\n";
-            echo "     <input type=\"submit\" class=\"button\" name=\"update_zones\" value=\"" . _('Update zones') . "\">\n";
             echo "    </form>";
+            
         }
 
-        echo "    <form method=\"post\" action=\"\">\n";
-        echo "     <table>\n";
-        echo "      <tr>\n";
-        echo "       <th>" . _('Name') . "</th>\n";
-        echo "       <td><input class=\"wide\" type=\"text\" name=\"templ_name\" value=\"" . $templ_details['name'] . "\"></td>\n";
-        echo "      </tr>\n";
-        echo "      <tr>\n";
-        echo "       <th>" . _('Description') . "</th>\n";
-        echo "       <td><input class=\"wide\" type=\"text\" name=\"templ_descr\" value=\"" . $templ_details['descr'] . "\"></td>\n";
-        echo "      </tr>\n";
-        echo "     </table>\n";
-        echo "     <input type=\"submit\" class=\"button\" name=\"edit\" value=\"" . _('Commit changes') . "\">\n";
-        echo "     </form>\n";
-        echo "    <input type=\"button\" class=\"button\" OnClick=\"location.href='add_zone_templ_record.php?id=" . $zone_templ_id . "'\" value=\"" . _('Add record') . "\">&nbsp;&nbsp\n";
-        echo "    <input type=\"button\" class=\"button\" OnClick=\"location.href='delete_zone_templ.php?id=" . $zone_templ_id . "'\" value=\"" . _('Delete zone template') . "\">\n";
+        echo "     <form class=\"form-horizontal\" method=\"post\" action=\"\">\n";
+        echo "      <div class=\"form-group\">\n";
+        echo "       <label for=\"templ_name\" class=\"col-sm-2 control-label\">" . _('Name') . "</label>\n";
+        echo "       <div class=\"col-sm-10\">\n";
+        echo "        <input type=\"text\" class=\"form-control\" id=\"templ_name\" name=\"templ_name\" value=\"" . $templ_details['name'] . "\">\n";
+        echo "       </div>\n";
+        echo "      </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <label for=\"templ_descr\" class=\"col-sm-2 control-label\">" . _('Description') . "</label>\n";
+        echo "        <div class=\"col-sm-10\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" id=\"templ_descr\" name=\"templ_descr\" value=\"" . $templ_details['descr'] . "\">\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+        echo "         <button type=\"submit\" name=\"edit\" class=\"btn btn-default\">" . _('Commit changes') . "</button>\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "      </form>\n";
+
+
+        
+        
+        echo "    <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='add_zone_templ_record.php?id=" . $zone_templ_id . "'\" value=\"" . _('Add record') . "\">&nbsp;&nbsp\n";
+        echo "    <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='delete_zone_templ.php?id=" . $zone_templ_id . "'\" value=\"" . _('Delete zone template') . "\">\n";
     }
 }
 

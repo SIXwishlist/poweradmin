@@ -31,44 +31,47 @@
  */
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
-verify_permission('templ_perm_edit') ? $perm_templ_perm_edit = "1" : $perm_templ_perm_edit = "0";
+do_hook('verify_permission', 'templ_perm_edit') ? $perm_templ_perm_edit = "1" : $perm_templ_perm_edit = "0";
 
-$permission_templates = list_permission_templates();
+$permission_templates = do_hook('list_permission_templates');
 
 if ($perm_templ_perm_edit == "0") {
     error(ERR_PERM_EDIT_PERM_TEMPL);
 } else {
-    echo "    <h2>" . _('Permission templates') . "</h2>\n";
-    echo "     <table>\n";
+    echo "    <h1 class=\"page-header\">" . _('Permission templates') . "</h1>\n";
+    echo "     <table class=\"table table-hover\">\n";
+    echo "      <thead>\n";
     echo "      <tr>\n";
     echo "       <th>&nbsp;</th>\n";
     echo "       <th>" . _('Name') . "</th>\n";
     echo "       <th>" . _('Description') . "</th>\n";
     echo "      </tr>\n";
+    echo "      </thead>\n";
+    echo "      <tbody>\n";
 
     foreach ($permission_templates as $template) {
 
-        $perm_item_list = get_permissions_by_template_id($template['id'], true);
+        $perm_item_list = do_hook('get_permissions_by_template_id', $template['id'], true);
         $perm_items = implode(', ', $perm_item_list);
 
         echo "      <tr>\n";
         if ($perm_templ_perm_edit == "1") {
             echo "       <td>\n";
-            echo "        <a href=\"edit_perm_templ.php?id=" . $template["id"] . "\"><img src=\"images/edit.gif\" alt=\"[ " . _('Edit template') . " ]\"></a>\n";
-            echo "        <a href=\"delete_perm_templ.php?id=" . $template["id"] . "\"><img src=\"images/delete.gif\" alt=\"[ " . _('Delete template') . " ]\"></a>\n";
+            echo "        <a class=\"btn btn-warning btn-sm\" role=\"button\" href=\"edit_perm_templ.php?id=" . $template["id"] . "\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\" alt=\"[ " . _('Edit template') . " ]\"></span></a>\n";
+            echo "        <a class=\"btn btn-danger btn-sm\" role=\"button\" href=\"delete_perm_templ.php?id=" . $template["id"] . "\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" alt=\"[ " . _('Delete template') . " ]\"></span></a>\n";
             echo "       </td>\n";
         } else {
             echo "       <td>&nbsp;</td>\n";
         }
-        echo "       <td class=\"y\">" . $template['name'] . "</td>\n";
-        echo "       <td class=\"y\">" . $template['descr'] . "</td>\n";
+        echo "       <td>" . $template['name'] . "</td>\n";
+        echo "       <td>" . $template['descr'] . "</td>\n";
         echo "      </tr>\n";
     }
-
+    echo "      </tbody>\n";
     echo "     </table>\n";
-    echo "     <ul>\n";
-    echo "      <li><a href=\"add_perm_templ.php\">" . _('Add permission template') . "</a>.</li>\n";
-    echo "     </ul>\n";
+    // echo "     <ul>\n";
+    echo "      <a class=\"btn btn-default btn-sm\" role=\"button\" href=\"add_perm_templ.php\"><span class=\"glyphicon glyphicon-plus\" aria-hidden=\"true\">&nbsp;</span>" . _('Add permission template') . "</a>\n";
+    // echo "     </ul>\n";
 }
 
 include_once("inc/footer.inc.php");

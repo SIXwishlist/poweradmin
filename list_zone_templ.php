@@ -31,29 +31,33 @@
  */
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
-verify_permission('zone_master_add') ? $perm_zone_master_add = "1" : $perm_zone_master_add = "0";
 
-$zone_templ = get_list_zone_templ($_SESSION['userid']);
-$username = get_fullname_from_userid($_SESSION['userid']);
+do_hook('verify_permission', 'zone_master_add') ? $perm_zone_master_add = "1" : $perm_zone_master_add = "0";
+
+$zone_templates = get_list_zone_templ($_SESSION['userid']);
+$username = do_hook('get_fullname_from_userid', $_SESSION['userid']);
 
 if ($perm_zone_master_add == "0") {
     error(ERR_PERM_EDIT_ZONE_TEMPL);
 } else {
-    echo "    <h2>" . _('Zone templates for') . " " . $username . "</h2>\n";
-    echo "     <table>\n";
+    echo "    <h1 class=\"page-header\">" . _('Zone templates for') . " " . $username . "</h1>\n";
+    echo "     <div class=\"table-responsive\">\n";
+    echo "     <table class=\"table table-hover table-condensed\">\n";
+    echo "      <thead>\n";
     echo "      <tr>\n";
     echo "       <th>&nbsp;</th>\n";
     echo "       <th>" . _('Name') . "</th>\n";
     echo "       <th>" . _('Description') . "</th>\n";
     echo "      </tr>\n";
-
-    foreach ($zone_templ as $template) {
+    echo "      </thead>\n";
+    echo "      <tbody>\n";
+    foreach ($zone_templates as $template) {
 
         echo "      <tr>\n";
         if ($perm_zone_master_add == "1") {
             echo "       <td>\n";
-            echo "        <a href=\"edit_zone_templ.php?id=" . $template["id"] . "\"><img src=\"images/edit.gif\" alt=\"[ " . _('Edit template') . " ]\"></a>\n";
-            echo "        <a href=\"delete_zone_templ.php?id=" . $template["id"] . "\"><img src=\"images/delete.gif\" alt=\"[ " . _('Delete template') . " ]\"></a>\n";
+            echo "        <a class=\"btn btn-warning btn-sm\" role=\"button\" href=\"edit_zone_templ.php?id=" . $template["id"] . "\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\" alt=\"[ " . _('Edit template') . " ]\"></span></a>\n";
+            echo "        <a class=\"btn btn-danger btn-sm\" role=\"button\" href=\"delete_zone_templ.php?id=" . $template["id"] . "\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" alt=\"[ " . _('Delete template') . " ]\"></span></a>\n";
             echo "       </td>\n";
         } else {
             echo "       <td>&nbsp;</td>\n";
@@ -62,11 +66,10 @@ if ($perm_zone_master_add == "0") {
         echo "       <td class=\"y\">" . $template['descr'] . "</td>\n";
         echo "      </tr>\n";
     }
-
+    echo "      </tbody>\n";
     echo "     </table>\n";
-    echo "     <ul>\n";
-    echo "      <li><a href=\"add_zone_templ.php\">" . _('Add zone template') . "</a>.</li>\n";
-    echo "     </ul>\n";
+    echo "     </div>\n";
+    echo "      <a class=\"btn btn-default\" role=\"button\" href=\"add_zone_templ.php\">" . _('Add zone template') . "</a>\n";
 }
 
 include_once("inc/footer.inc.php");

@@ -47,8 +47,8 @@ if (isset($_POST["account"])) {
     $account = $_POST["account"];
 }
 
-(verify_permission('supermaster_add')) ? $supermasters_add = "1" : $supermasters_add = "0";
-(verify_permission('user_view_others')) ? $perm_view_others = "1" : $perm_view_others = "0";
+(do_hook('verify_permission' , 'supermaster_add' )) ? $supermasters_add = "1" : $supermasters_add = "0";
+(do_hook('verify_permission' , 'user_view_others' )) ? $perm_view_others = "1" : $perm_view_others = "0";
 
 $error = 0;
 if (isset($_POST["submit"])) {
@@ -59,44 +59,42 @@ if (isset($_POST["submit"])) {
     }
 }
 
-echo "     <h2>" . _('Add supermaster') . "</h2>\n";
+echo "    <h1 class=\"page-header\">" . _('Add supermaster') . "</h1>\n";
 
 if ($supermasters_add != "1") {
     echo "     <p>" . _("You do not have the permission to add a new supermaster.") . "</p>\n";
 } else {
-    echo "     <form method=\"post\" action=\"add_supermaster.php\">\n";
-    echo "      <table>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('IP address of supermaster') . "</td>\n";
-    echo "        <td class=\"n\">\n";
+    echo "     <form class=\"form-horizontal\" method=\"post\" action=\"add_supermaster.php\">\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"master_ip\" class=\"col-sm-2 control-label\">" . _('IP address of supermaster') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
     if ($error) {
-        echo "         <input type=\"text\" class=\"input\" name=\"master_ip\" value=\"" . $master_ip . "\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"master_ip\" value=\"" . $master_ip . "\">\n";
     } else {
-        echo "         <input type=\"text\" class=\"input\" name=\"master_ip\" value=\"\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"master_ip\" value=\"\">\n";
     }
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Hostname in NS record') . "</td>\n";
-    echo "        <td class=\"n\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"ns_name\" class=\"col-sm-2 control-label\">" . _('Hostname in NS record') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
     if ($error) {
-        echo "         <input type=\"text\" class=\"input\" name=\"ns_name\" value=\"" . $ns_name . "\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"ns_name\" value=\"" . $ns_name . "\">\n";
     } else {
-        echo "         <input type=\"text\" class=\"input\" name=\"ns_name\" value=\"\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"ns_name\" value=\"\">\n";
     }
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Account') . "</td>\n";
-    echo "        <td class=\"n\">\n";
-
-    echo "         <select name=\"account\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"ns_name\" class=\"col-sm-2 control-label\">" . _('Account') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "         <select class=\"form-control\" name=\"account\">\n";
     /*
       Display list of users to assign slave zone to if the
       editing user has the permissions to, otherise just
       display the adding users name
      */
-    $users = show_users();
+    $users = do_hook('show_users');
     foreach ($users as $user) {
         if ($user['id'] === $_SESSION['userid']) {
             echo "          <option value=\"" . $user['username'] . "\" selected>" . $user['fullname'] . "</option>\n";
@@ -105,16 +103,16 @@ if ($supermasters_add != "1") {
         }
     }
     echo "         </select>\n";
-
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Add supermaster') . "\">\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "      </table>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";    
+    echo "       <div class=\"form-group\">\n";
+    echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+    echo "         <button type=\"submit\" name=\"submit\" class=\"btn btn-default\">" . _('Add supermaster') . "</button>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    
+    echo "      <table>\n";
     echo "     </form>\n";
 }
+
 include_once("inc/footer.inc.php");

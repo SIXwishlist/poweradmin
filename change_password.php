@@ -30,35 +30,38 @@
  * @license     http://opensource.org/licenses/GPL-3.0 GPL
  */
 require_once("inc/toolkit.inc.php");
-
-if (isset($_POST['submit']) && $_POST['submit']) {
-    change_user_pass($_POST);
-}
-
 include_once("inc/header.inc.php");
 
-echo "    <h2>" . _('Change password') . "</h2>\n";
-echo "    <form method=\"post\" action=\"change_password.php\">\n";
-echo "     <table border=\"0\" cellspacing=\"4\">\n";
-echo "      <tr>\n";
-echo "       <td class=\"n\">" . _('Current password') . ":</td>\n";
-echo "       <td class=\"n\"><input type=\"password\" class=\"input\" name=\"currentpass\" value=\"\"></td>\n";
-echo "      </tr>\n";
-echo "      <tr>\n";
-echo "       <td class=\"n\">" . _('New password') . ":</td>\n";
-echo "       <td class=\"n\"><input type=\"password\" class=\"input\" name=\"newpass\" value=\"\"></td>\n";
-echo "      </tr>\n";
-echo "      <tr>\n";
-echo "       <td class=\"n\">" . _('New password') . ":</td>\n";
-echo "       <td class=\"n\"><input type=\"password\" class=\"input\" name=\"newpass2\" value=\"\"></td>\n";
-echo "      </tr>\n";
-echo "      <tr>\n";
-echo "       <td class=\"n\">&nbsp;</td>\n";
-echo "       <td class=\"n\">\n";
-echo "        <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Change password') . "\">\n";
-echo "       </td>\n";
-echo "      </tr>\n";
-echo "     </table>\n";
+if (isset($_POST['submit']) && $_POST['submit']) {
+    do_hook('change_user_pass' , $_POST );
+}
+
+echo "    <h1 class=\"page-header\">" . _('Change password') . "</h1>\n";
+echo "     <div class=\"panel-body\">\n";
+echo "    <form class=\"form-horizontal\" method=\"post\" action=\"change_password.php\">\n";
+echo "       <div class=\"form-group\">\n";
+echo "        <label for=\"currentpass\" class=\"col-sm-2 control-label\">" . _('Current password') . "</label>\n";
+echo "        <div class=\"col-sm-10\">\n";
+echo "         <input type=\"password\" class=\"form-control\" name=\"currentpass\" value=\"\">\n";
+echo "        </div>\n";
+echo "       </div>\n";
+echo "       <div class=\"form-group\">\n";
+echo "        <label for=\"newpass\" class=\"col-sm-2 control-label\">" . _('New password') . "</label>\n";
+echo "        <div class=\"col-sm-10\">\n";
+echo "         <input type=\"password\" class=\"form-control\" name=\"newpass\" value=\"\">\n";
+echo "        </div>\n";
+echo "       </div>\n";
+echo "       <div class=\"form-group\">\n";
+echo "        <label for=\"newpass2\" class=\"col-sm-2 control-label\">" . _('New password') . "</label>\n";
+echo "        <div class=\"col-sm-10\">\n";
+echo "         <input type=\"password\" class=\"form-control\" name=\"newpass2\" value=\"\">\n";
+echo "        </div>\n";
+echo "       </div>\n";
+echo "       <div class=\"form-group\">\n";
+echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+echo "         <input type=\"submit\" class=\"btn btn-default\" name=\"submit\" value=\"" . _('Change password') . "\">\n";
+echo "        </div>\n";
+echo "       </div>\n";
 echo "    </form>\n";
 
 include_once("inc/footer.inc.php");

@@ -23,15 +23,11 @@
 /**
  *  Toolkit functions
  *
- * @package Poweradmin
+ * @package     Poweradmin
  * @copyright   2007-2010 Rejo Zenger <rejo@zenger.nl>
  * @copyright   2010-2014 Poweradmin Development Team
  * @license     http://opensource.org/licenses/GPL-3.0 GPL
  */
-// Fix for Strict Standards: Non-static method PEAR::setErrorHandling() should not be called statically
-// TODO: remove after PEAR::MDB2 replacement with PDO
-ini_set('error_reporting', E_ALL & ~ (E_NOTICE | E_STRICT));
-
 // TODO: display elapsed time and memory consumption,
 // used to check improvements in refactored version
 $display_stats = false;
@@ -39,6 +35,8 @@ if ($display_stats)
     include('inc/benchmark.php');
 
 ob_start();
+
+require_once("error.inc.php");
 
 if (!function_exists('session_start'))
     die(error('You have to install PHP session extension!'));
@@ -110,69 +108,95 @@ if (isset($_GET["record_sort_by"]) && preg_match("/^[a-z_]+$/", $_GET["record_so
     define('RECORD_SORT_BY', "name");
 }
 
-$valid_tlds = array("ac", "academy", "actor", "ad", "ae", "aero", "af", "ag",
-    "agency", "ai", "al", "am", "an", "ao", "aq", "ar", "arpa", "as", "asia",
-    "at", "au", "aw", "ax", "az", "ba", "bar", "bargains", "bb", "bd", "be",
-    "berlin", "best", "bf", "bg", "bh", "bi", "bid", "bike", "biz", "bj", "blue",
-    "bm", "bn", "bo", "boutique", "br", "bs", "bt", "build", "builders", "buzz",
-    "bv", "bw", "by", "bz", "ca", "cab", "camera", "camp", "cards", "careers",
-    "cat", "catering", "cc", "cd", "center", "ceo", "cf", "cg", "ch", "cheap",
-    "christmas", "ci", "ck", "cl", "cleaning", "clothing", "club", "cm", "cn",
-    "co", "codes", "coffee", "com", "community", "company", "computer", "condos",
-    "construction", "contractors", "cool", "coop", "cr", "cruises", "cu", "cv",
-    "cw", "cx", "cy", "cz", "dance", "dating", "de", "democrat", "diamonds",
-    "directory", "dj", "dk", "dm", "do", "domains", "dz", "ec", "edu",
-    "education", "ee", "eg", "email", "enterprises", "equipment", "er", "es",
-    "estate", "et", "eu", "events", "expert", "exposed", "farm", "fi", "fish",
-    "fj", "fk", "flights", "florist", "fm", "fo", "foundation", "fr", "futbol",
-    "ga", "gallery", "gb", "gd", "ge", "gf", "gg", "gh", "gi", "gift", "gl",
-    "glass", "gm", "gn", "gov", "gp", "gq", "gr", "graphics", "gs", "gt", "gu",
-    "guitars", "guru", "gw", "gy", "hk", "hm", "hn", "holdings", "holiday",
-    "house", "hr", "ht", "hu", "id", "ie", "il", "im", "immobilien", "in",
-    "industries", "info", "institute", "int", "international", "io", "iq", "ir",
-    "is", "it", "je", "jm", "jo", "jobs", "jp", "kaufen", "ke", "kg", "kh", "ki",
-    "kim", "kitchen", "kiwi", "km", "kn", "koeln", "kp", "kr", "kred", "kw", "ky",
-    "kz", "la", "land", "lb", "lc", "li", "lighting", "limo", "link", "lk", "lr",
-    "ls", "lt", "lu", "luxury", "lv", "ly", "ma", "maison", "management", "mango",
-    "marketing", "mc", "md", "me", "menu", "mg", "mh", "mil", "mk", "ml", "mm",
-    "mn", "mo", "mobi", "moda", "monash", "mp", "mq", "mr", "ms", "mt", "mu",
-    "museum", "mv", "mw", "mx", "my", "mz", "na", "nagoya", "name", "nc", "ne",
-    "net", "neustar", "nf", "ng", "ni", "ninja", "nl", "no", "np", "nr", "nu",
-    "nz", "okinawa", "om", "onl", "org", "pa", "partners", "parts", "pe", "pf",
-    "pg", "ph", "photo", "photography", "photos", "pics", "pink", "pk", "pl",
-    "plumbing", "pm", "pn", "post", "pr", "pro", "productions", "properties",
-    "ps", "pt", "pub", "pw", "py", "qa", "qpon", "re", "recipes", "red",
-    "rentals", "repair", "report", "reviews", "rich", "ro", "rs", "ru", "ruhr",
-    "rw", "sa", "sb", "sc", "sd", "se", "sexy", "sg", "sh", "shiksha", "shoes",
-    "si", "singles", "sj", "sk", "sl", "sm", "sn", "so", "social", "solar",
-    "solutions", "sr", "st", "su", "supplies", "supply", "support", "sv", "sx",
-    "sy", "systems", "sz", "tattoo", "tc", "td", "technology", "tel", "tf", "tg",
-    "th", "tienda", "tips", "tj", "tk", "tl", "tm", "tn", "to", "today", "tokyo",
-    "tools", "tp", "tr", "training", "travel", "tt", "tv", "tw", "tz", "ua", "ug",
-    "uk", "uno", "us", "uy", "uz", "va", "vacations", "vc", "ve", "ventures",
-    "vg", "vi", "viajes", "villas", "vision", "vn", "vote", "voting", "voto",
-    "voyage", "vu", "wang", "watch", "wed", "wf", "wien", "wiki", "works", "ws",
-    "xn--3bst00m", "xn--3ds443g", "xn--3e0b707e", "xn--45brj9c", "xn--55qw42g",
-    "xn--55qx5d", "xn--6frz82g", "xn--6qq986b3xl", "xn--80ao21a", "xn--80asehdb",
-    "xn--80aswg", "xn--90a3ac", "xn--c1avg", "xn--cg4bki",
-    "xn--clchc0ea0b2g2a9gcd", "xn--d1acj3b", "xn--fiq228c5hs", "xn--fiq64b",
-    "xn--fiqs8s", "xn--fiqz9s", "xn--fpcrj9c3d", "xn--fzc2c9e2c", "xn--gecrj9c",
-    "xn--h2brj9c", "xn--i1b6b1a6a2e", "xn--io0a7i", "xn--j1amh", "xn--j6w193g",
-    "xn--kprw13d", "xn--kpry57d", "xn--l1acc", "xn--lgbbat1ad8j", "xn--mgb9awbf",
-    "xn--mgba3a4f16a", "xn--mgbaam7a8h", "xn--mgbab2bd", "xn--mgbayh7gpa",
-    "xn--mgbbh1a71e", "xn--mgbc0a9azcg", "xn--mgberp4a5d4ar", "xn--mgbx4cd0ab",
-    "xn--ngbc5azd", "xn--nqv7f", "xn--nqv7fs00ema", "xn--o3cw4h", "xn--ogbpf8fl",
-    "xn--p1ai", "xn--pgbs0dh", "xn--q9jyb4c", "xn--s9brj9c", "xn--unup4y",
-    "xn--wgbh1c", "xn--wgbl6a", "xn--xkc2al3hye2a", "xn--xkc2dl3a5ee0h",
-    "xn--yfro4i67o", "xn--ygbi2ammx", "xn--zfr164b", "xxx", "xyz", "ye", "yt",
-    "za", "zm", "zone", "zw");
+// Updated on 2015022800 - 831 TLDs
+// http://data.iana.org/TLD/tlds-alpha-by-domain.txt
+$valid_tlds = array('abogado','ac','academy','accountants','active','actor','ad','adult','ae','aero',
+'af','ag','agency','ai','airforce','al','allfinanz','alsace','am','amsterdam','an',
+'android','ao','apartments','aq','aquarelle','ar','archi','army','arpa','as','asia',
+'associates','at','attorney','au','auction','audio','autos','aw','ax','axa','az','ba',
+'band','bank','bar','barclaycard','barclays','bargains','bayern','bb','bd','be','beer',
+'berlin','best','bf','bg','bh','bi','bid','bike','bingo','bio','biz','bj','black',
+'blackfriday','bloomberg','blue','bm','bmw','bn','bnpparibas','bo','boats','boo',
+'boutique','br','brussels','bs','bt','budapest','build','builders','business','buzz',
+'bv','bw','by','bz','bzh','ca','cab','cal','camera','camp','cancerresearch','canon',
+'capetown','capital','caravan','cards','care','career','careers','cartier','casa',
+'cash','casino','cat','catering','cbn','cc','cd','center','ceo','cern','cf','cg',
+'ch','channel','chat','cheap','christmas','chrome','church','ci','citic','city','ck',
+'cl','claims','cleaning','click','clinic','clothing','club','cm','cn','co','coach',
+'codes','coffee','college','cologne','com','community','company','computer','condos',
+'construction','consulting','contractors','cooking','cool','coop','country','courses',
+'cr','credit','creditcard','cricket','crs','cruises','cu','cuisinella','cv','cw','cx',
+'cy','cymru','cz','dabur','dad','dance','dating','day','dclk','de','deals','degree',
+'delivery','democrat','dental','dentist','desi','design','dev','diamonds','diet',
+'digital','direct','directory','discount','dj','dk','dm','dnp','do','docs','domains',
+'doosan','durban','dvag','dz','eat','ec','edu','education','ee','eg','email','emerck',
+'energy','engineer','engineering','enterprises','equipment','er','es','esq','estate',
+'et','eu','eurovision','eus','events','everbank','exchange','expert','exposed','fail',
+'fans','farm','fashion','feedback','fi','finance','financial','firmdale','fish',
+'fishing','fit','fitness','fj','fk','flights','florist','flowers','flsmidth','fly',
+'fm','fo','foo','football','forsale','foundation','fr','frl','frogans','fund',
+'furniture','futbol','ga','gal','gallery','garden','gb','gbiz','gd','gdn','ge','gent',
+'gf','gg','ggee','gh','gi','gift','gifts','gives','gl','glass','gle','global','globo',
+'gm','gmail','gmo','gmx','gn','goldpoint','goog','google','gop','gov','gp','gq','gr',
+'graphics','gratis','green','gripe','gs','gt','gu','guide','guitars','guru','gw','gy',
+'hamburg','hangout','haus','healthcare','help','here','hermes','hiphop','hiv','hk',
+'hm','hn','holdings','holiday','homes','horse','host','hosting','house','how','hr',
+'ht','hu','ibm','id','ie','ifm','il','im','immo','immobilien','in','industries','info',
+'ing','ink','institute','insure','int','international','investments','io','iq','ir',
+'irish','is','it','iwc','jcb','je','jetzt','jm','jo','jobs','joburg','jp','juegos',
+'kaufen','kddi','ke','kg','kh','ki','kim','kitchen','kiwi','km','kn','koeln','kp','kr',
+'krd','kred','kw','ky','kyoto','kz','la','lacaixa','land','lat','latrobe','lawyer',
+'lb','lc','lds','lease','legal','lgbt','li','lidl','life','lighting','limited','limo',
+'link','lk','loans','london','lotte','lotto','lr','ls','lt','ltda','lu','luxe','luxury',
+'lv','ly','ma','madrid','maison','management','mango','market','marketing','marriott',
+'mc','md','me','media','meet','melbourne','meme','memorial','menu','mg','mh','miami',
+'mil','mini','mk','ml','mm','mn','mo','mobi','moda','moe','monash','money','mormon',
+'mortgage','moscow','motorcycles','mov','mp','mq','mr','ms','mt','mu','museum','mv',
+'mw','mx','my','mz','na','nagoya','name','navy','nc','ne','net','network','neustar',
+'new','nexus','nf','ng','ngo','nhk','ni','nico','ninja','nl','no','np','nr','nra',
+'nrw','ntt','nu','nyc','nz','okinawa','om','one','ong','onl','ooo','org','organic',
+'osaka','otsuka','ovh','pa','paris','partners','parts','party','pe','pf','pg','ph',
+'pharmacy','photo','photography','photos','physio','pics','pictures','pink','pizza',
+'pk','pl','place','plumbing','pm','pn','pohl','poker','porn','post','pr','praxi',
+'press','pro','prod','productions','prof','properties','property','ps','pt','pub',
+'pw','py','qa','qpon','quebec','re','realtor','recipes','red','rehab','reise','reisen',
+'reit','ren','rentals','repair','report','republican','rest','restaurant','reviews',
+'rich','rio','rip','ro','rocks','rodeo','rs','rsvp','ru','ruhr','rw','ryukyu','sa',
+'saarland','sale','samsung','sarl','saxo','sb','sc','sca','scb','schmidt','school',
+'schule','schwarz','science','scot','sd','se','services','sew','sexy','sg','sh',
+'shiksha','shoes','shriram','si','singles','sj','sk','sky','sl','sm','sn','so',
+'social','software','sohu','solar','solutions','soy','space','spiegel','sr','st',
+'study','style','su','sucks','supplies','supply','support','surf','surgery','suzuki',
+'sv','sx','sy','sydney','systems','sz','taipei','tatar','tattoo','tax','tc','td',
+'technology','tel','temasek','tennis','tf','tg','th','tienda','tips','tires','tirol',
+'tj','tk','tl','tm','tn','to','today','tokyo','tools','top','toshiba','town','toys',
+'tr','trade','training','travel','trust','tt','tui','tv','tw','tz','ua','ug','uk',
+'university','uno','uol','us','uy','uz','va','vacations','vc','ve','vegas','ventures',
+'versicherung','vet','vg','vi','viajes','video','villas','vision','vlaanderen','vn',
+'vodka','vote','voting','voto','voyage','vu','wales','wang','watch','webcam','website',
+'wed','wedding','wf','whoswho','wien','wiki','williamhill','wme','work','works','world',
+'ws','wtc','wtf','xn--1qqw23a','xn--3bst00m','xn--3ds443g','xn--3e0b707e','xn--45brj9c',
+'xn--45q11c','xn--4gbrim','xn--55qw42g','xn--55qx5d','xn--6frz82g','xn--6qq986b3xl',
+'xn--80adxhks','xn--80ao21a','xn--80asehdb','xn--80aswg','xn--90a3ac','xn--90ais',
+'xn--b4w605ferd','xn--c1avg','xn--cg4bki','xn--clchc0ea0b2g2a9gcd','xn--czr694b',
+'xn--czrs0t','xn--czru2d','xn--d1acj3b','xn--d1alf','xn--fiq228c5hs','xn--fiq64b',
+'xn--fiqs8s','xn--fiqz9s','xn--flw351e','xn--fpcrj9c3d','xn--fzc2c9e2c','xn--gecrj9c',
+'xn--h2brj9c','xn--hxt814e','xn--i1b6b1a6a2e','xn--io0a7i','xn--j1amh','xn--j6w193g',
+'xn--kprw13d','xn--kpry57d','xn--kput3i','xn--l1acc','xn--lgbbat1ad8j','xn--mgb9awbf',
+'xn--mgba3a4f16a','xn--mgbaam7a8h','xn--mgbab2bd','xn--mgbayh7gpa','xn--mgbbh1a71e',
+'xn--mgbc0a9azcg','xn--mgberp4a5d4ar','xn--mgbx4cd0ab','xn--ngbc5azd','xn--node',
+'xn--nqv7f','xn--nqv7fs00ema','xn--o3cw4h','xn--ogbpf8fl','xn--p1acf','xn--p1ai',
+'xn--pgbs0dh','xn--q9jyb4c','xn--qcka1pmc','xn--rhqv96g','xn--s9brj9c','xn--ses554g',
+'xn--unup4y','xn--vermgensberater-ctb','xn--vermgensberatung-pwb','xn--vhquv',
+'xn--wgbh1c','xn--wgbl6a','xn--xhq521b','xn--xkc2al3hye2a','xn--xkc2dl3a5ee0h',
+'xn--yfro4i67o','xn--ygbi2ammx','xn--zfr164b','xxx','xyz','yachts','yandex','ye',
+'yodobashi','yoga','yokohama','youtube','yt','za','zip','zm','zone','zuerich','zw');
 
 // Special TLDs for testing and documentation purposes
 // http://tools.ietf.org/html/rfc2606#section-2
 array_push($valid_tlds, 'test', 'example', 'invalid', 'localhost');
 
 /* Database connection */
-
 require_once("database.inc.php");
 // Generates $db variable to access database.
 // Array of the available zone types
@@ -230,9 +254,10 @@ if ($dns_fancy) {
 /* * ***********
  * Includes  *
  * *********** */
+$db = dbConnect();
+require_once("plugin.inc.php");
 
 require_once("i18n.inc.php");
-require_once("error.inc.php");
 require_once("auth.inc.php");
 require_once("users.inc.php");
 require_once("dns.inc.php");
@@ -240,8 +265,8 @@ require_once("record.inc.php");
 require_once("dnssec.inc.php");
 require_once("templates.inc.php");
 
-$db = dbConnect();
-doAuthenticate();
+//do_hook('hook_post_includes');
+do_hook('authenticate');
 
 
 /* * ***********
@@ -404,20 +429,6 @@ function zone_letter_start($letter, $userid = true) {
     return ($result ? 1 : 0);
 }
 
-/** Print error message (toolkit.inc)
- *
- * @param string $msg Error message
- *
- * @return null
- */
-function error($msg) {
-    if ($msg) {
-        echo "     <div class=\"error\">Error: " . $msg . "</div>\n";
-    } else {
-        echo "     <div class=\"error\">" . _('An unknown error has occurred.') . "</div>\n";
-    }
-}
-
 /** Print success message (toolkit.inc)
  *
  * @param string $msg Success message
@@ -426,9 +437,9 @@ function error($msg) {
  */
 function success($msg) {
     if ($msg) {
-        echo "     <div class=\"success\">" . $msg . "</div>\n";
+        echo "     <div class=\"alert alert-success\">" . $msg . "</div>\n";
     } else {
-        echo "     <div class=\"success\">" . _('Something has been successfully performed. What exactly, however, will remain a mystery.') . "</div>\n";
+        echo "     <div class=\"alert alert-success\">" . _('Something has been successfully performed. What exactly, however, will remain a mystery.') . "</div>\n";
     }
 }
 
@@ -501,22 +512,6 @@ function get_status($res) {
     }
 }
 
-/** Parse string and substitute domain and serial
- *
- * @param string $val string to parse containing tokens '[ZONE]' and '[SERIAL]'
- * @param string $domain domain to subsitute for '[ZONE]'
- *
- * @return string interpolated/parsed string
- */
-function parse_template_value($val, $domain) {
-    $serial = date("Ymd");
-    $serial .= "00";
-
-    $val = str_replace('[ZONE]', $domain, $val);
-    $val = str_replace('[SERIAL]', $serial, $val);
-    return $val;
-}
-
 /** Validate email address string
  *
  * @param string $address email address string
@@ -561,23 +556,6 @@ function debug_print($var) {
     echo "</pre>\n";
 }
 
-/** Set timezone (required for PHP5)
- *
- * Set timezone to configured tz or UTC it not set
- *
- * @return null
- */
-function set_timezone() {
-    global $timezone;
-
-    if (function_exists('date_default_timezone_set')) {
-        if (isset($timezone)) {
-            date_default_timezone_set($timezone);
-        } else if (!ini_get('date.timezone')) {
-            date_default_timezone_set('UTC');
-        }
-    }
-}
 
 /** Generate random salt for encryption
  *
@@ -629,8 +607,7 @@ function gen_mix_salt($pass) {
     return mix_salt($salt, $pass);
 }
 
-
-function do_log($syslog_message,$priority){
+function do_log($syslog_message, $priority) {
     global $syslog_use, $syslog_ident, $syslog_facility;
     if ($syslog_use) {
         openlog($syslog_ident, LOG_PERROR, $syslog_facility);
@@ -640,17 +617,95 @@ function do_log($syslog_message,$priority){
 }
 
 function log_error($syslog_message) {
-    do_log($syslog_message,LOG_ERR);
+    do_log($syslog_message, LOG_ERR);
 }
 
 function log_warn($syslog_message) {
-    do_log($syslog_message,LOG_WARNING);
+    do_log($syslog_message, LOG_WARNING);
 }
 
 function log_notice($syslog_message) {
-    do_log($syslog_message,LOG_NOTICE);
+    do_log($syslog_message, LOG_NOTICE);
 }
 
 function log_info($syslog_message) {
-    do_log($syslog_message,LOG_INFO);
+    do_log($syslog_message, LOG_INFO);
+}
+
+/** Print the login form
+ *
+ * @param string $msg Error Message
+ * @param string $type Message type [default='success', 'error']
+ *
+ * @return null
+ */
+function auth($msg = "", $type = "success") {
+    include_once('inc/header.inc.php');
+    include('inc/config.inc.php');
+    
+    if ($msg) {
+        print "<div class=\"$type\">$msg</div>\n";
+    }
+    ?>
+
+    <form class="form-signin" method="post" action="<?php echo htmlentities($_SERVER["PHP_SELF"], ENT_QUOTES); ?>">
+        <h2 class="form-signin-heading"><?php echo _('Log in'); ?></h2>
+        <input type="hidden" name="query_string" value="<?php echo htmlentities($_SERVER["QUERY_STRING"]); ?>">
+        
+        <label for="username" class="sr-only"><?php echo _('Username'); ?>:</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
+        <label for="inputPassword" class="sr-only"><?php echo _('Password'); ?>:</label>
+        <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <div class="form-group">
+        <label for="userlang"><?php echo _('Language'); ?>:</label>
+        
+        <select class="form-control" name="userlang">
+                        <?php
+                        // List available languages (sorted alphabetically)
+                        include_once('inc/countrycodes.inc.php');
+                        $locales = scandir('locale/');
+                        foreach ($locales as $locale) {
+                            if (strlen($locale) == 5) {
+                                $locales_fullname[$locale] = $countrycodes[substr($locale, 0, 2)];
+                            }
+                        }
+                        asort($locales_fullname);
+                        foreach ($locales_fullname as $locale => $language) {
+                            if ($locale == $iface_lang) {
+                                echo _('<option selected value="' . $locale . '">' . $language);
+                            } else {
+                                echo _('<option value="' . $locale . '">' . $language);
+                            }
+                        }
+                        ?>
+                    </select>
+            
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" name="authenticate" type="submit"><?php echo _('Go'); ?></button>
+    </form>
+    <script type="text/javascript">
+        <!--
+      document.getElementById('username').focus();
+        //-->
+    </script>
+    <?php
+    include_once('inc/footer.inc.php');
+    exit;
+}
+
+/** Logout the user
+ *
+ * Logout the user and kickback to login form
+ *
+ * @param string $msg Error Message
+ * @param string $type Message type [default='']
+ *
+ * @return null
+ */
+function logout($msg = "", $type = "") {
+    session_unset();
+    session_destroy();
+    session_write_close();
+    auth($msg, $type);
+    exit;
 }

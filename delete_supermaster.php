@@ -50,13 +50,14 @@ if ((isset($_GET['confirm'])) && (v_num($_GET['confirm']))) {
 if ($master_ip == "-1" || $ns_name == "-1") {
     error(ERR_INV_INPUT);
 } else {
-    (verify_permission('supermaster_edit')) ? $perm_sm_edit = "1" : $perm_sm_edit = "0";
+    (do_hook('verify_permission' , 'supermaster_edit' )) ? $perm_sm_edit = "1" : $perm_sm_edit = "0";
     if ($perm_sm_edit == "0") {
         error(ERR_PERM_DEL_SM);
     } else {
         $info = get_supermaster_info_from_ip($master_ip);
 
-        echo "     <h2>" . _('Delete supermaster') . " \"" . $master_ip . "\"</h2>\n";
+        echo "    <h1 class=\"page-header\">" . _('Delete supermaster') . " \"" . $master_ip . "</h1>\n";
+        echo "     <div class=\"panel\">\n";
 
         if (isset($_GET['confirm']) && $_GET["confirm"] == '1') {
             if (!supermaster_ip_name_exists($master_ip, $ns_name)) {
@@ -73,10 +74,11 @@ if ($master_ip == "-1" || $ns_name == "-1") {
             echo "      " . _('Account') . ": " . $info['account'] . "\n";
             echo "     </p>\n";
             echo "     <p>" . _('Are you sure?') . "</p>\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='delete_supermaster.php?master_ip=" . $master_ip . "&amp;ns_name=" . $info['ns_name'] . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='delete_supermaster.php?master_ip=" . $master_ip . "&amp;ns_name=" . $info['ns_name'] . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
         }
     }
 }
+echo "      </div>\n";
 
 include_once("inc/footer.inc.php");

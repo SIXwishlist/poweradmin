@@ -32,7 +32,7 @@
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
 
-if (!verify_permission('zone_master_add')) {
+if (!do_hook('verify_permission' , 'zone_master_add' )) {
     error(ERR_PERM_ADD_ZONE_TEMPL);
 } else {
 
@@ -46,21 +46,31 @@ if (!verify_permission('zone_master_add')) {
       Display new zone template form
      */
 
-    $username = get_fullname_from_userid($_SESSION['userid']);
-    echo "    <h2>" . _('Add zone template for') . " " . $username . "</h2>\n";
-    echo "    <form method=\"post\" action=\"add_zone_templ.php\">\n";
-    echo "     <table>\n";
-    echo "      <tr>\n";
-    echo "       <th>" . _('Name') . "</th>\n";
-    echo "       <td><input class=\"wide\" type=\"text\" name=\"templ_name\" value=\"\"></td>\n";
-    echo "      </tr>\n";
-    echo "      <tr>\n";
-    echo "       <th>" . _('Description') . "</th>\n";
-    echo "       <td><input class=\"wide\" type=\"text\" name=\"templ_descr\" value=\"\"></td>\n";
-    echo "      </tr>\n";
-    echo "     </table>\n";
-    echo "     <input type=\"submit\" class=\"button\" name=\"commit\" value=\"" . _('Add zone template') . "\">\n";
-    echo "     </form>\n";
+    $username = do_hook('get_fullname_from_userid' , $_SESSION['userid'] );
+    echo "    <div class=\"panel panel-default\">\n";
+    echo "     <div class=\"panel-heading\"><h2>" . _('Add zone template for') . " " . $username . "</h2></div>\n";
+    echo "     <div class=\"panel-body\">\n";
+    echo "      <form class=\"form-horizontal\" method=\"post\" action=\"add_zone_templ.php\">\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"templ_name\" class=\"col-sm-2 control-label\">" . _('Name') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" id=\"templ_name\" name=\"templ_name\" placeholder=\"Template Name\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"templ_descr\" class=\"col-sm-2 control-label\">" . _('Description') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" id=\"templ_descr\" name=\"templ_descr\" placeholder=\"Template Description\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+    echo "         <button type=\"submit\" name=\"commit\" class=\"btn btn-default\">" . _('Add zone template') . "</button>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "      </form>\n";
+    echo "     </div>\n";
+    echo "    </div>\n";
 }
 
 include_once("inc/footer.inc.php");

@@ -76,26 +76,34 @@ function addField(area, field, limit) {
     if (count > limit && limit > 0)
         return;
 
-    if (document.createElement) { //W3C Dom method.
+    if (document.createElement) {
+
         var li = document.createElement("li");
+        var div = document.createElement("div");
+        div.className = "input-group";
+        li.appendChild(div);
         var input = document.createElement("input");
         input.id = field + count;
         input.name = "domain[]";
-        input.type = "text"; //Type of field - can be any valid input type like text,file,checkbox etc.
-        input.className = "input";
-        li.appendChild(input);
+        input.type = "text";
+        input.className = "form-control";
+        div.appendChild(input);
+        var span = document.createElement("span");
+        span.className = "input-group-btn";
         var editLink = document.createElement("input");
         editLink.id = 'remove_button';
         editLink.type = 'button';
-        editLink.value = 'Remove field';
-        editLink.setAttribute('class', 'button');
-        editLink.onclick = function() {
-            this.parentNode.parentNode.removeChild(this.parentNode);
+        editLink.value = 'Remove';
+        editLink.setAttribute('class', 'btn btn-default');
+        editLink.onclick = function () {
+            this.parentNode.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode.parentNode);
         }
-        li.appendChild(editLink);
+        span.appendChild(editLink);
+        div.appendChild(span);
+        li.appendChild(div);
         field_area.appendChild(li);
     } else { //Older Method
-        field_area.innerHTML += "<li><input name='domain[]' id='" + (field + count) + "' type='text' class='input' /> <a onclick=\"this.parentNode.parentNode.removeChild(this.parentNode);\">Remove Field</a></li>";
+        field_area.innerHTML += "<li><input name='domain[]' id='" + (field + count) + "' type='text' class='form-control' /> <a onclick=\"this.parentNode.parentNode.removeChild(this.parentNode);\">Remove Field</a></li>";
     }
 }
 

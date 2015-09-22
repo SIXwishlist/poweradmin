@@ -25,6 +25,8 @@
 define("ERR_PERM_SEARCH", _("You do not have the permission to perform searches."));
 define("ERR_PERM_ADD_RECORD", _("You do not have the permission to add a record to this zone."));
 define("ERR_PERM_EDIT_RECORD", _("You do not have the permission to edit this record."));
+define("ERR_PERM_EDIT_RECORD_SOA", _("You do not have the permission to edit this SOA record."));
+define("ERR_PERM_EDIT_RECORD_NS", _("You do not have the permission to edit this NS record."));
 define("ERR_PERM_VIEW_RECORD", _("You do not have the permission to view this record."));
 define("ERR_PERM_DEL_RECORD", _("You do not have the permission to delete this record."));
 define("ERR_PERM_ADD_ZONE_MASTER", _("You do not have the permission to add a master zone."));
@@ -128,6 +130,7 @@ define("SUC_ZONE_ADD", _('Zone has been added successfully.'));
 define("SUC_ZONE_DEL", _('Zone has been deleted successfully.'));
 define("SUC_ZONES_DEL", _('Zones have been deleted successfully.'));
 define("SUC_ZONE_UPD", _('Zone has been updated successfully.'));
+define("SUC_ZONE_NOCHANGE", _('Zone did not have any record changes.'));
 define("SUC_ZONES_UPD", _('Zones have been updated successfully.'));
 define("SUC_USER_UPD", _('The user has been updated successfully.'));
 define("SUC_USER_ADD", _('The user has been created successfully.'));
@@ -148,3 +151,13 @@ define("SUC_EXEC_PDNSSEC_ADD_ZONE_KEY", _('Zone key has been added successfully.
 define("SUC_EXEC_PDNSSEC_REMOVE_ZONE_KEY", _('Zone key has been deleted successfully.'));
 define("SUC_EXEC_PDNSSEC_ACTIVATE_ZONE_KEY", _('Zone key has been successfully activated.'));
 define("SUC_EXEC_PDNSSEC_DEACTIVATE_ZONE_KEY", _('Zone key has been successfully deactivated.'));
+
+/** Print error message (toolkit.inc)
+ *
+ * @param string $msg Error message
+ *
+ * @return null
+ */
+function error($msg) {
+    echo "     <div class=\"alert alert-danger\">Error: " . $msg . "</div>\n";
+}

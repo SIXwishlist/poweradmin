@@ -59,12 +59,12 @@ if ($record_id == "-1" || $zone_templ_id == "-1") {
         $templ_details = get_zone_templ_details($zone_templ_id);
         $record_info = get_zone_templ_record_from_id($record_id);
 
-        echo "     <h2>" . _('Delete record in zone') . " \"" . $templ_details['name'] . "\"</h2>\n";
+        echo "     <h1 class=\"page-header\">" . _('Delete record in zone') . " \"" . $templ_details['name'] . "\"</h1>\n";
 
-        if (!(verify_permission('zone_master_add')) || !$owner) {
+        if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
             error(ERR_PERM_DEL_RECORD);
         } else {
-            echo "     <table>\n";
+            echo "     <table class=\"table table-condensed\">\n";
             echo "      <tr>\n";
             echo "       <th>Name</th>\n";
             echo "       <th>Type</th>\n";
@@ -81,8 +81,8 @@ if ($record_id == "-1" || $zone_templ_id == "-1") {
             echo "      </tr>\n";
             echo "     </table>\n";
             echo "     <p>" . _('Are you sure?') . "</p>\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='delete_zone_templ_record.php?id=" . $record_id . "&amp;zone_templ_id=" . $zone_templ_id . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='delete_zone_templ_record.php?id=" . $record_id . "&amp;zone_templ_id=" . $zone_templ_id . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
         }
     }
 }

@@ -127,7 +127,7 @@ if (!function_exists('mcrypt_encrypt'))
     die(error('You have to install PHP mcrypt extension!'));
 
 
-echo "    <h2>" . _('Reset Password') . "</h2>\n";
+echo "    <h1 class=\"page-header\">" . _('Reset Password') . "</h1>\n";
 echo "    <form method=\"post\" action=\"reset_password.php\">\n";
 echo "     <table border=\"0\" cellspacing=\"4\">\n";
 echo "      <tr>\n";

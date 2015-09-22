@@ -46,7 +46,7 @@ if ((isset($_POST['ttl'])) && (v_num($_POST['ttl']))) {
     $ttl = $_POST['ttl'];
 }
 
-$prio = "10";
+$prio = "";
 if ((isset($_POST['prio'])) && (v_num($_POST['prio']))) {
     $prio = $_POST['prio'];
 }
@@ -83,7 +83,7 @@ $owner = get_zone_templ_is_owner($zone_templ_id, $_SESSION['userid']);
   process it!
  */
 if (isset($_POST["commit"])) {
-    if (!(verify_permission('zone_master_add')) || !$owner) {
+    if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
         error(ERR_PERM_ADD_RECORD);
     } else {
         if (add_zone_templ_record($zone_templ_id, $name, $type, $content, $ttl, $prio)) {
@@ -96,27 +96,30 @@ if (isset($_POST["commit"])) {
 /*
   Display form to add a record
  */
-echo "    <h2>" . _('Add record to zone template') . " \"" . $templ_details['name'] . "\"</h2>\n";
+echo "    <h1 class=\"page-header\">" . _('Add record to zone template') . " \"" . $templ_details['name'] . "\"</h1>\n";
 
-if (!(verify_permission('zone_master_add')) || !$owner) {
+if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
     error(ERR_PERM_ADD_RECORD);
 } else {
-    echo "     <form method=\"post\">\n";
+    echo "     <form class=\"form-inline\" method=\"post\">\n";
     echo "      <input type=\"hidden\" name=\"domain\" value=\"" . $zone_templ_id . "\">\n";
-    echo "      <table border=\"0\" cellspacing=\"4\">\n";
+    echo "     <div class=\"table-responsive\">\n";
+    echo "      <table class=\"table\">\n";
+    echo "      <thead>\n";
     echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Name') . "</td>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "        <td class=\"n\">" . _('Type') . "</td>\n";
-    echo "        <td class=\"n\">" . _('Content') . "</td>\n";
-    echo "        <td class=\"n\">" . _('Priority') . "</td>\n";
-    echo "        <td class=\"n\">" . _('TTL') . "</td>\n";
+    echo "        <th>" . _('Name') . "</th>\n";
+    echo "        <th>" . _('Type') . "</th>\n";
+    echo "        <th>" . _('Content') . "</th>\n";
+    echo "        <th>" . _('Priority') . "</th>\n";
+    echo "        <th>" . _('TTL') . "</th>\n";
     echo "       </tr>\n";
+    echo "      </thead>\n";
+    echo "      <tbody>\n";
     echo "       <tr>\n";
-    echo "        <td class=\"n\"><input type=\"text\" name=\"name\" class=\"input\" value=\"" . $name . "\"></td>\n";
-    echo "        <td class=\"n\">IN</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"type\">\n";
+    echo "        <td><input type=\"text\" class=\"form-control\" name=\"name\" value=\"" . $name . "\"></td>\n";
+    echo "        <td>\n";
+    echo "        <label>IN</label>\n";
+    echo "         <select class=\"form-control\" name=\"type\">\n";
     $found_selected_type = !(isset($type) && $type);
     foreach (get_record_types() as $record_type) {
         if (isset($type) && $type) {
@@ -142,23 +145,24 @@ if (!(verify_permission('zone_master_add')) || !$owner) {
         echo "          <option SELECTED value=\"" . htmlspecialchars($type) . "\"><i>" . htmlspecialchars($type) . "</i></option>\n";
     echo "         </select>\n";
     echo "        </td>\n";
-    echo "        <td class=\"n\"><input type=\"text\" name=\"content\" class=\"input\" value=\"" . $content . "\"></td>\n";
-    echo "        <td class=\"n\"><input type=\"text\" name=\"prio\" class=\"sinput\" value=\"" . $prio . "\"></td>\n";
-    echo "        <td class=\"n\"><input type=\"text\" name=\"ttl\" class=\"sinput\" value=\"" . $ttl . "\"</td>\n";
+    echo "        <td><input class=\"form-control\" type=\"text\" name=\"content\" value=\"" . $content . "\"></td>\n";
+    echo "        <td><input class=\"form-control\" type=\"text\" name=\"prio\" value=\"" . $prio . "\"></td>\n";
+    echo "        <td><input class=\"form-control\" type=\"text\" name=\"ttl\" value=\"" . $ttl . "\"</td>\n";
     echo "       </tr>\n";
     echo "     <tr>\n";
-    echo "      <td colspan=\"6\"><br><b>Hint:</b></td>\n";
+    echo "      <td colspan=\"5\"><br><b>Hint:</b></td>\n";
     echo "     </tr>\n";
     echo "     <tr>\n";
-    echo "      <td colspan=\"6\">" . _('The following placeholders can be used in template records') . "</td>\n";
+    echo "      <td colspan=\"5\">" . _('The following placeholders can be used in template records') . "</td>\n";
     echo "     </tr>\n";
     echo "     <tr>\n";
-    echo "      <td colspan=\"6\"><br>&nbsp;&nbsp;&nbsp;&nbsp; * [ZONE] - " . _('substituted with current zone name') . "<br>";
+    echo "      <td colspan=\"5\"><br>&nbsp;&nbsp;&nbsp;&nbsp; * [ZONE] - " . _('substituted with current zone name') . "<br>";
     echo "&nbsp;&nbsp;&nbsp;&nbsp; * [SERIAL] - " . _('substituted with current date and 2 numbers') . " (YYYYMMDD + 00)</td>\n";
     echo "     </tr>\n";
+    echo "      </tbody>\n";
     echo "      </table>\n";
-    echo "      <br>\n";
-    echo "      <input type=\"submit\" name=\"commit\" value=\"" . _('Add record') . "\" class=\"button\">\n";
+    echo "     </div>\n";
+    echo "      <button type=\"submit\" name=\"commit\" class=\"btn btn-default\">" . _('Add record') . "</button>\n";
     echo "     </form>\n";
 }
 

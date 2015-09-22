@@ -37,8 +37,8 @@ if (isset($_GET['id']) && v_num($_GET['id'])) {
     $edit_id = $_GET['id'];
 }
 
-verify_permission('user_edit_own') ? $perm_edit_own = "1" : $perm_edit_own = "0";
-verify_permission('user_edit_others') ? $perm_edit_others = "1" : $perm_edit_others = "0";
+do_hook('verify_permission' , 'user_edit_own' ) ? $perm_edit_own = "1" : $perm_edit_own = "0";
+do_hook('verify_permission' , 'user_edit_others' ) ? $perm_edit_others = "1" : $perm_edit_others = "0";
 
 if ($edit_id == "-1") {
     error(ERR_INV_INPUT);
@@ -91,76 +91,89 @@ if ($edit_id == "-1") {
                 } else {
                     $active = 1;
                 }
-                if (edit_user($edit_id, $i_username, $i_fullname, $i_email, $i_perm_templ, $i_description, $active, $i_password)) {
+                if (do_hook('edit_user' , $edit_id, $i_username, $i_fullname, $i_email, $i_perm_templ, $i_description, $active, $i_password )) {
                     success(SUC_USER_UPD);
                 }
             }
         }
     }
 
-    $users = get_user_detail_list($edit_id);
+    $users = do_hook('get_user_detail_list' , $edit_id );
 
     foreach ($users as $user) {
 
         (($user['active']) == "1") ? $check = " CHECKED" : $check = "";
 
-        echo "     <h2>" . _('Edit user') . " \"" . $user['fullname'] . "\"</h2>\n";
-        echo "     <form method=\"post\" action=\"\">\n";
+        echo "     <h1 class=\"page-header\">" . _('Edit user') . " \"" . $user['fullname'] . "\"</h1>\n";
+        echo "     <form class=\"form-horizontal\" method=\"post\" action=\"\">\n";
         echo "      <input type=\"hidden\" name=\"number\" value=\"" . $edit_id . "\">\n";
-        echo "      <table>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Username') . "</td>\n";
-        echo "        <td class=\"n\"><input type=\"text\" class=\"input\" name=\"username\" value=\"" . $user['username'] . "\"></td>\n";
-        echo "       </tr>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Fullname') . "</td>\n";
-        echo "        <td class=\"n\"><input type=\"text\" class=\"input\" name=\"fullname\" value=\"" . $user['fullname'] . "\"></td>\n";
-        echo "       </tr>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Password') . "</td>\n";
-        echo "        <td class=\"n\"><input type=\"password\" class=\"input\" name=\"password\"></td>\n";
-        echo "       </tr>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Email address') . "</td>\n";
-        echo "        <td class=\"n\"><input type=\"text\" class=\"input\" name=\"email\" value=\"" . $user['email'] . "\"></td>\n";
-        echo "       </tr>\n";
-        if (verify_permission('user_edit_templ_perm')) {
-            echo "       <tr>\n";
-            echo "        <td class=\"n\">" . _('Permission template') . "</td>\n";
-            echo "        <td class=\"n\">\n";
-            echo "         <select name=\"perm_templ\">\n";
-            foreach (list_permission_templates() as $template) {
+        echo "       <div class=\"form-group\">\n";
+        echo "        <label for=\"username\" class=\"col-sm-2 control-label\">" . _('Username') . "</label>\n";
+        echo "        <div class=\"col-sm-10\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"username\" value=\"" . $user['username'] . "\">\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <label for=\"fullname\" class=\"col-sm-2 control-label\">" . _('Fullname') . "</label>\n";
+        echo "        <div class=\"col-sm-10\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"fullname\" value=\"" . $user['fullname'] . "\">\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <label for=\"password\" class=\"col-sm-2 control-label\">" . _('Password') . "</label>\n";
+        echo "        <div class=\"col-sm-10\">\n";
+        echo "         <input type=\"password\" class=\"form-control\" name=\"password\">\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <label for=\"email\" class=\"col-sm-2 control-label\">" . _('Email address') . "</label>\n";
+        echo "        <div class=\"col-sm-10\">\n";
+        echo "         <input type=\"text\" class=\"form-control\" name=\"email\" value=\"" . $user['email'] . "\">\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        if (do_hook('verify_permission' , 'user_edit_templ_perm' )) {
+            echo "       <div class=\"form-group\">\n";
+            echo "        <label for=\"perm_templ\" class=\"col-sm-2 control-label\">" . _('Permission template') . "</label>\n";
+            echo "        <div class=\"col-sm-10\">\n";
+            echo "         <select class=\"form-control\" name=\"perm_templ\">\n";
+            foreach (do_hook('list_permission_templates' ) as $template) {
                 ($template['id'] == $user['tpl_id']) ? $select = " SELECTED" : $select = "";
                 echo "          <option value=\"" . $template['id'] . "\"" . $select . ">" . $template['name'] . "</option>\n";
             }
             echo "         </select>\n";
-            echo "       </td>\n";
+            echo "       </div>\n";
         }
-        echo "       </tr>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Description') . "</td>\n";
-        echo "        <td class=\"n\"><textarea rows=\"4\" cols=\"30\" class=\"inputarea\" name=\"description\">" . $user['descr'] . "</textarea></td>\n";
-        echo "       </tr>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Enabled') . "</td>\n";
-        echo "        <td class=\"n\"><input type=\"checkbox\" class=\"input\" name=\"active\" value=\"1\"" . $check . "></td>\n";
-        echo "       </tr>\n";
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">&nbsp;</td>\n";
-        echo "        <td class=\"n\"><input type=\"submit\" class=\"button\" name=\"commit\" value=\"" . _('Commit changes') . "\">\n";
-        echo "        <input type=\"reset\" class=\"button\" name=\"reset\" value=\"" . _('Reset changes') . "\"></td>\n";
-        echo "      </table>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <label for=\"description\" class=\"col-sm-2 control-label\">" . _('Description') . "</label>\n";
+        echo "        <div class=\"col-sm-10\">\n";
+        echo "         <textarea class=\"form-control\" name=\"description\">" . $user['descr'] . "</textarea>\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+        echo "        <div class=\"checkbox\">\n";
+        echo "         <label><input type=\"checkbox\" name=\"active\" value=\"1\"" . $check . ">" . _('Enabled') . "</label>\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
+        echo "       </div>\n";
+        echo "       <div class=\"form-group\">\n";
+        echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+        echo "         <button type=\"submit\" class=\"btn btn-default\" name=\"commit\">" . _('Commit changes') . "</button>\n";
+        echo "         <button type=\"reset\" class=\"btn btn-default\" name=\"reset\">" . _('Reset changes') . "</button>\n";
+        echo "        </div>\n";
+        echo "       </div>\n";
         echo "     </form>\n";
 
         echo "     <p>\n";
         printf(_('This user has been assigned the permission template "%s".'), $user['tpl_name']);
         if ($user['tpl_descr'] != "") {
-            echo " " . _('The description for this template is') . ": \"" . $user['tpl_descr'] . "\".";
+            echo " <br>" . _('The description for this template is') . ": \"" . $user['tpl_descr'] . "\".";
         }
-        echo " " . _('Based on this template, this user has the following permissions') . ":";
+        echo " <br>" . _('Based on this template, this user has the following permissions') . ":";
         echo "     </p>\n";
         echo "     <ul>\n";
-        foreach (get_permissions_by_template_id($user['tpl_id']) as $item) {
+        foreach (do_hook('get_permissions_by_template_id' , $user['tpl_id'] ) as $item) {
             echo "      <li>" . _($item['descr']) . " (" . $item['name'] . ")</li>\n";
         }
         echo "     </ul>\n";

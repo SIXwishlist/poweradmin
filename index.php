@@ -32,15 +32,15 @@
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
 
-echo "     <h3>" . _('Welcome') . " " . $_SESSION["name"] . "</h3>\n";
+echo "     <h1 class=\"page-header\">" . _('Welcome') . " " . $_SESSION["name"] . "</h1>\n";
 
-verify_permission('search') ? $perm_search = "1" : $perm_search = "0";
-verify_permission('zone_content_view_own') ? $perm_view_zone_own = "1" : $perm_view_zone_own = "0";
-verify_permission('zone_content_view_others') ? $perm_view_zone_other = "1" : $perm_view_zone_other = "0";
-verify_permission('supermaster_view') ? $perm_supermaster_view = "1" : $perm_supermaster_view = "0";
-verify_permission('zone_master_add') ? $perm_zone_master_add = "1" : $perm_zone_master_add = "0";
-verify_permission('zone_slave_add') ? $perm_zone_slave_add = "1" : $perm_zone_slave_add = "0";
-verify_permission('supermaster_add') ? $perm_supermaster_add = "1" : $perm_supermaster_add = "0";
+do_hook('verify_permission', 'search') ? $perm_search = "1" : $perm_search = "0";
+do_hook('verify_permission', 'zone_content_view_own') ? $perm_view_zone_own = "1" : $perm_view_zone_own = "0";
+do_hook('verify_permission', 'zone_content_view_others') ? $perm_view_zone_other = "1" : $perm_view_zone_other = "0";
+do_hook('verify_permission', 'supermaster_view') ? $perm_supermaster_view = "1" : $perm_supermaster_view = "0";
+do_hook('verify_permission', 'zone_master_add') ? $perm_zone_master_add = "1" : $perm_zone_master_add = "0";
+do_hook('verify_permission', 'zone_slave_add') ? $perm_zone_slave_add = "1" : $perm_zone_slave_add = "0";
+do_hook('verify_permission', 'supermaster_add') ? $perm_supermaster_add = "1" : $perm_supermaster_add = "0";
 
 echo "    <ul>\n";
 echo "    <li><a href=\"index.php\">" . _('Index') . "</a></li>\n";
@@ -71,5 +71,4 @@ if ($_SESSION["auth_used"] != "ldap") {
 echo "    <li><a href=\"users.php\">" . _('User administration') . "</a></li>\n";
 echo "    <li><a href=\"index.php?logout\">" . _('Logout') . "</a></li>\n";
 echo "   </ul>\n";
-
 include_once("inc/footer.inc.php");

@@ -54,8 +54,8 @@ $type = "SLAVE";
 /*
   Check permissions
  */
-(verify_permission('zone_slave_add')) ? $zone_slave_add = "1" : $zone_slave_add = "0";
-(verify_permission('user_view_others')) ? $perm_view_others = "1" : $perm_view_others = "0";
+(do_hook('verify_permission' , 'zone_slave_add' )) ? $zone_slave_add = "1" : $zone_slave_add = "0";
+(do_hook('verify_permission' , 'user_view_others' )) ? $perm_view_others = "1" : $perm_view_others = "0";
 
 if (isset($_POST['submit']) && $zone_slave_add == "1") {
     if (!is_valid_hostname_fqdn($zone, 0)) {
@@ -64,14 +64,14 @@ if (isset($_POST['submit']) && $zone_slave_add == "1") {
         error(ERR_DOMAIN_EXISTS);
     } elseif (domain_exists($zone) || record_name_exists($zone)) {
         error(ERR_DOMAIN_EXISTS);
-    } elseif (!is_valid_ipv4($master, false) && !is_valid_ipv6($master)) {
+    } elseif (!are_multipe_valid_ips($master)) {
         error(ERR_DNS_IP);
     } else {
         if (add_domain($zone, $owner, $type, $master, 'none')) {
             success("<a href=\"edit.php?id=" . get_zone_id_from_name($zone) . "\">" . SUC_ZONE_ADD . '</a>');
             log_info(sprintf('client_ip:%s user:%s operation:add_zone zone:%s zone_type:SLAVE zone_master:%s',
                               $_SERVER['REMOTE_ADDR'], $_SESSION["userlogin"],
-                              $zone, $master, $zone_template));
+                              $zone, $master));
             unset($zone, $owner, $webip, $mailip, $empty, $type, $master);
         }
     }
@@ -80,27 +80,26 @@ if (isset($_POST['submit']) && $zone_slave_add == "1") {
 if ($zone_slave_add != "1") {
     error(ERR_PERM_ADD_ZONE_SLAVE);
 } else {
-    echo "     <h2>" . _('Add slave zone') . "</h2>\n";
+    echo "     <h1 class=\"page-header\">" . _('Add slave zone') . "</h1>\n";
 
-    $users = show_users();
-    echo "     <form method=\"post\" action=\"add_zone_slave.php\">\n";
-    echo "      <table>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Zone name') . "</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input type=\"text\" class=\"input\" name=\"domain\" value=\"\">\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('IP address of master NS') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input type=\"text\" class=\"input\" name=\"slave_master\" value=\"\">\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Owner') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"owner\">\n";
+    $users = do_hook('show_users');
+    echo "     <form class=\"form-horizontal\" method=\"post\" action=\"add_zone_slave.php\">\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"domain\" class=\"col-sm-2 control-label\">" . _('Zone name') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" name=\"domain\" value=\"\">\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"slave_master\" class=\"col-sm-2 control-label\">" . _('IP address of master NS') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" name=\"slave_master\" value=\"\">\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"owner\" class=\"col-sm-2 control-label\">" . _('Owner') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <select class=\"form-control\" name=\"owner\">\n";
     /*
       Display list of users to assign slave zone to if the
       editing user has the permissions to, otherise just
@@ -114,15 +113,13 @@ if ($zone_slave_add != "1") {
         }
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Add zone') . "\">\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "      </table>\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "        <div class=\"form-group\">\n";
+    echo "         <div class=\"col-sm-offset-2 col-sm-10\">\n";
+    echo "          <button type=\"submit\" name=\"submit\" class=\"btn btn-default\">" . _('Add zone') . "</button>\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
     echo "     </form>\n";
 }
 

@@ -32,25 +32,27 @@
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
 
-if (verify_permission('zone_content_view_others')) {
+if (do_hook('verify_permission', 'zone_content_view_others')) {
     $perm_view = "all";
-} elseif (verify_permission('zone_content_view_own')) {
+} elseif (do_hook('verify_permission', 'zone_content_view_own')) {
     $perm_view = "own";
 } else {
     $perm_view = "none";
 }
 
-if (verify_permission('zone_content_edit_others')) {
+if (do_hook('verify_permission', 'zone_content_edit_others')) {
     $perm_content_edit = "all";
-} elseif (verify_permission('zone_content_edit_own')) {
+} elseif (do_hook('verify_permission', 'zone_content_edit_own')) {
     $perm_content_edit = "own";
+} elseif (do_hook('verify_permission', 'zone_content_edit_own_as_client')) {
+    $perm_content_edit = "own_as_client";
 } else {
     $perm_content_edit = "none";
 }
 
-if (verify_permission('zone_meta_edit_others')) {
+if (do_hook('verify_permission', 'zone_meta_edit_others')) {
     $perm_meta_edit = "all";
-} elseif (verify_permission('zone_meta_edit_own')) {
+} elseif (do_hook('verify_permission', 'zone_meta_edit_own')) {
     $perm_meta_edit = "own";
 } else {
     $perm_meta_edit = "none";
@@ -58,12 +60,12 @@ if (verify_permission('zone_meta_edit_others')) {
 
 $zid = $_GET['domain'];
 
-$user_is_zone_owner = verify_user_is_owner_zoneid($zid);
+$user_is_zone_owner = do_hook('verify_user_is_owner_zoneid' , $zid );
 $zone_type = get_domain_type($zid);
 $zone_name = get_zone_name_from_id($zid);
 
 if (isset($_POST["commit"])) {
-    if ($zone_type == "SLAVE" || $perm_content_edit == "none" || $perm_content_edit == "own" && $user_is_zone_owner == "0") {
+    if ($zone_type == "SLAVE" || $perm_content_edit == "none" || ($perm_content_edit == "own" || $perm_content_edit == "own_as_client") && $user_is_zone_owner == "0") {
         error(ERR_PERM_EDIT_COMMENT);
     } else {
         edit_zone_comment($_GET['domain'], $_POST['comment']);
@@ -71,43 +73,50 @@ if (isset($_POST["commit"])) {
     }
 }
 
-echo "    <h2>" . _('Edit comment in zone') . " " . $zone_name . "</h2>\n";
+echo "    <h1 class=\"page-header\">" . _('Edit comment in zone') . " " . $zone_name . "</h1>\n";
 
 if ($perm_view == "none" || $perm_view == "own" && $user_is_zone_owner == "0") {
     error(ERR_PERM_VIEW_COMMENT);
 } else {
     $comment = get_zone_comment($zid);
-    echo "     <form method=\"post\" action=\"edit_comment.php?domain=" . $zid . "\">\n";
-    echo "      <table>\n";
-    echo "      <tr>\n";
-    echo "       <td colspan=\"6\">&nbsp;</td>\n";
-    echo "      </tr>\n";
-    echo "      <tr>\n";
-    echo "       <td>&nbsp;</td><td colspan=\"5\">Comments:</td>\n";
-    echo "      </tr>\n";
-
-    if ($zone_type == "SLAVE" || $perm_content_edit == "none" || $perm_content_edit == "own" && $user_is_zone_owner == "0") {
-        echo "    <tr>\n";
-        echo "     <td class=\"n\">\n";
-        echo "      &nbsp;\n";
-        echo "     </td>\n";
-        echo "     <td colspan=\"4\"><textarea rows=\"15\" name=\"comment\" disabled>" . $comment . "</textarea></td>\n";
-        echo "     <td>&nbsp;</td>\n";
-        echo "    </tr>\n";
+    echo "     <form class=\"form-horizontal\" method=\"post\" action=\"edit_comment.php?domain=" . $zid . "\">\n";
+    echo "      <div class=\"form-group\">\n";
+    echo "      <label class=\"col-sm-1 control-label\">Comments:</label>\n";
+    echo "       <div class=\"col-sm-8\">\n";
+    if ($zone_type == "SLAVE" || $perm_content_edit == "none" || ($perm_content_edit == "own" || $perm_content_edit == "own_as_client") && $user_is_zone_owner == "0") {
+    echo "        <textarea class=\"form-control\" rows=\"9\" name=\"comment\" disabled>" . $comment . "</textarea>\n";
     } else {
-        echo "    <tr>\n";
-        echo "     <td class=\"n\">\n";
-        echo "      &nbsp;\n";
-        echo "     </td>\n";
-        echo "     <td colspan=\"4\"><textarea rows=\"15\" name=\"comment\">" . $comment . "</textarea></td>\n";
-        echo "     <td>&nbsp;</td>\n";
-        echo "    </tr>\n";
+    echo "        <textarea class=\"form-control\" rows=\"9\" name=\"comment\">" . $comment . "</textarea>\n";
     }
-    echo "      </table>\n";
-    echo "      <p>\n";
-    echo "       <input type=\"submit\" name=\"commit\" value=\"" . _('Commit changes') . "\" class=\"button\">&nbsp;&nbsp;\n";
-    echo "       <input type=\"reset\" name=\"reset\" value=\"" . _('Reset changes') . "\" class=\"button\">&nbsp;&nbsp;\n";
-    echo "      </p>\n";
+    echo "       </div>\n";
+    echo "      </div>\n";
+    echo "      <div class=\"form-group\">\n";
+    echo "      <div class=\"col-sm-offset-1 col-sm-8\">\n";
+    echo "       <button type=\"submit\" name=\"commit\" class=\"btn btn-default\">" . _('Commit changes') . "</button>\n";
+    echo "       <button type=\"reset\" name=\"reset\" class=\"btn btn-default\">" . _('Reset changes') . "</button>\n";
+    echo "      </div>\n";
+    echo "      </div>\n";
+
+//        echo "    <tr>\n";
+//        echo "     <td class=\"n\">\n";
+//        echo "      &nbsp;\n";
+//        echo "     </td>\n";
+//        echo "     <td colspan=\"4\"><textarea rows=\"15\" name=\"comment\" disabled>" . $comment . "</textarea></td>\n";
+//        echo "     <td>&nbsp;</td>\n";
+//        echo "    </tr>\n";
+//
+//        echo "    <tr>\n";
+//        echo "     <td class=\"n\">\n";
+//        echo "      &nbsp;\n";
+//        echo "     </td>\n";
+//        echo "     <td colspan=\"4\"><textarea rows=\"15\" name=\"comment\">" . $comment . "</textarea></td>\n";
+//        echo "     <td>&nbsp;</td>\n";
+//        echo "    </tr>\n";
+//    }
+//    echo "      </table>\n";
+//    echo "      <p>\n";
+//
+//    echo "      </p>\n";
     echo "     </form>\n";
 }
 

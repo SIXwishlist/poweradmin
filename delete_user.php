@@ -32,9 +32,9 @@
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
 
-verify_permission('user_edit_own') ? $perm_edit_own = "1" : $perm_edit_own = "0";
-verify_permission('user_edit_others') ? $perm_edit_others = "1" : $perm_edit_others = "0";
-verify_permission('user_is_ueberuser') ? $perm_is_godlike = "1" : $perm_is_godlike = "0";
+do_hook('verify_permission' , 'user_edit_own' ) ? $perm_edit_own = "1" : $perm_edit_own = "0";
+do_hook('verify_permission' , 'user_edit_others' ) ? $perm_edit_others = "1" : $perm_edit_others = "0";
+do_hook('verify_permission' , 'user_is_ueberuser' ) ? $perm_is_godlike = "1" : $perm_is_godlike = "0";
 
 if (!(isset($_GET['id']) && v_num($_GET['id']))) {
     error(ERR_INV_INPUT);
@@ -46,13 +46,13 @@ if (!(isset($_GET['id']) && v_num($_GET['id']))) {
 
 if (isset($_POST['commit'])) {
 
-    if (is_valid_user($uid)) {
+    if (do_hook('is_valid_user' , $uid )) {
         $zones = array();
         if (isset($_POST['zone'])) {
             $zones = $_POST['zone'];
         }
 
-        if (delete_user($uid, $zones)) {
+        if (do_hook('delete_user' , $uid, $zones )) {
             success(SUC_USER_DEL);
         }
     } else {
@@ -66,24 +66,21 @@ if (isset($_POST['commit'])) {
         include_once("inc/footer.inc.php");
         exit;
     } else {
-        $fullname = get_fullname_from_userid($uid);
+        $fullname = do_hook('get_fullname_from_userid' , $uid );
         $zones = get_zones("own", $uid);
 
-        echo "     <h2>" . _('Delete user') . " \"" . $fullname . "\"</h2>\n";
+        echo "     <h1 class=\"page-header\">" . _('Delete user') . " \"" . $fullname . "\"</h1>\n";
         echo "     <form method=\"post\" action=\"\">\n";
-        echo "      <table>\n";
+        echo "      <table class=\"table\">\n";
 
         if (count($zones) > 0) {
-
-            $users = show_users();
-
+            $users = do_hook('show_users');
+            echo "       <thead>\n";
             echo "       <tr>\n";
             echo "        <td colspan=\"5\">\n";
-
             echo "         " . _('You are about to delete a user. This user is owner for a number of zones. Please decide what to do with these zones.') . "\n";
             echo "        </td>\n";
             echo "       </tr>\n";
-
             echo "       <tr>\n";
             echo "        <th>" . _('Zone') . "</th>\n";
             echo "        <th>" . _('Delete') . "</th>\n";
@@ -91,7 +88,8 @@ if (isset($_POST['commit'])) {
             echo "        <th>" . _('Add new owner') . "</th>\n";
             echo "        <th>" . _('Owner to be added') . "</th>\n";
             echo "       </tr>\n";
-
+            echo "       </thead>\n";
+            echo "       </tbody>\n";
             foreach ($zones as $zone) {
                 echo "       <input type=\"hidden\" name=\"zone[" . $zone['id'] . "][zid]\" value=\"" . $zone['id'] . "\">\n";
                 echo "       <tr>\n";
@@ -100,26 +98,23 @@ if (isset($_POST['commit'])) {
                 echo "        <td><input type=\"radio\" name=\"zone[" . $zone['id'] . "][target]\" value=\"leave\" CHECKED></td>\n";
                 echo "        <td><input type=\"radio\" name=\"zone[" . $zone['id'] . "][target]\" value=\"new_owner\"></td>\n";
                 echo "        <td>\n";
-                echo "         <select name=\"zone[" . $zone['id'] . "][newowner]\">\n";
-
+                echo "         <select class=\"form-control\" name=\"zone[" . $zone['id'] . "][newowner]\">\n";
                 foreach ($users as $user) {
                     echo "          <option value=\"" . $user["id"] . "\">" . $user["fullname"] . "</option>\n";
                 }
-
                 echo "         </select>\n";
                 echo "        </td>\n";
                 echo "       </tr>\n";
+                echo "       </tbody>\n";
             }
         }
         echo "       <tr>\n";
         echo "        <td colspan=\"5\">\n";
-
-        echo "         " . _('Really delete this user?') . "\n";
+        echo "         <h3>" . _('Really delete this user?') . "</h3>\n";
         echo "        </td>\n";
         echo "       </tr>\n";
-
         echo "      </table>\n";
-        echo "     <input type=\"submit\" class=\"button\" name=\"commit\" value=\"" . _('Commit changes') . "\">\n";
+        echo "     <button type=\"submit\" class=\"btn btn-default\" name=\"commit\">" . _('Commit changes') . "</button>\n";
         echo "     </form>\n";
     }
 }

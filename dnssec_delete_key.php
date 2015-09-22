@@ -49,7 +49,7 @@ if (isset($_GET['confirm']) && v_num($_GET['confirm'])) {
     $confirm = $_GET['confirm'];
 }
 
-$user_is_zone_owner = verify_user_is_owner_zoneid($zone_id);
+$user_is_zone_owner = do_hook('verify_user_is_owner_zoneid' , $zone_id );
 
 if ($zone_id == "-1") {
     error(ERR_INV_INPUT);
@@ -71,7 +71,7 @@ if (!dnssec_zone_key_exists($domain_name, $key_id)) {
     exit;    
 }
 
-echo "     <h2>" . _('Delete zone key') . "</h2>\n";
+echo "     <h1 class=\"page-header\">" . _('Delete zone key') . "</h1>\n";
 
 if ($confirm == '1') {
     if (dnssec_remove_zone_key($domain_name, $key_id)) {
@@ -88,8 +88,8 @@ if ($confirm == '1') {
         echo "      " . _('Bits') . ": " . $key_info[4] . "<br>\n";
         echo "      " . _('Active') . ": " . ($key_info[5] ? _('Yes') : _('No')) . "\n";
         echo "     <p>" . _('Are you sure?') . "</p>\n";
-        echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='dnssec_delete_key.php?id=" . $zone_id . "&amp;key_id=$key_id&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
-        echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
+        echo "     <input type=\"button\" class=\"btn btn-default btn-sm\" OnClick=\"location.href='dnssec_delete_key.php?id=" . $zone_id . "&amp;key_id=$key_id&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
+        echo "     <input type=\"button\" class=\"btn btn-default btn-sm\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
     } else {
         error(ERR_PDNSSEC_DEL_ZONE_KEY);
     }

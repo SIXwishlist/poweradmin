@@ -34,17 +34,17 @@ include_once("inc/header.inc.php");
 
 global $pdnssec_use;
 
-if (verify_permission('zone_content_view_others')) {
+if (do_hook('verify_permission', 'zone_content_view_others')) {
     $perm_view = "all";
-} elseif (verify_permission('zone_content_view_own')) {
+} elseif (do_hook('verify_permission', 'zone_content_view_own')) {
     $perm_view = "own";
 } else {
     $perm_view = "none";
 }
 
-if (verify_permission('zone_content_edit_others')) {
+if (do_hook('verify_permission', 'zone_content_edit_others')) {
     $perm_edit = "all";
-} elseif (verify_permission('zone_content_edit_own')) {
+} elseif (do_hook('verify_permission', 'zone_content_edit_own')) {
     $perm_edit = "own";
 } else {
     $perm_edit = "none";
@@ -66,7 +66,7 @@ if (!in_array(ZONE_SORT_BY, array('name', 'type', 'count_records'))) {
     $zone_sort_by = 'name';
 }
 
-echo "    <h2>" . _('List zones') . "</h2>\n";
+echo "    <h1 class=\"page-header\">" . _('List zones') . "</h1>\n";
 
 if ($perm_view == "none") {
     echo "     <p>" . _('You do not have the permission to see any zones.') . "</p>\n";
@@ -90,7 +90,9 @@ if ($perm_view == "none") {
         echo "</div>";
     }
     echo "     <form method=\"post\" action=\"delete_domains.php\">\n";
-    echo "     <table>\n";
+    echo "     <div class=\"table-responsive\">\n";
+    echo "     <table class=\"table table-hover table-condensed\">\n";
+    echo "      <thead>\n";
     echo "      <tr>\n";
     echo "       <th>&nbsp;</th>\n";
     echo "       <th>&nbsp;</th>\n";
@@ -106,9 +108,9 @@ if ($perm_view == "none") {
     if ($pdnssec_use) {
         echo "       <th>" . _('DNSSEC') . "</th>\n";
     }
-
     echo "      </tr>\n";
-
+    echo "      </thead>\n";
+    echo "      <tbody>\n";
     if ($count_zones_view <= $iface_rowamount) {
         $zones = get_zones($perm_view, $_SESSION['userid'], "all", ROWSTART, $iface_rowamount, $zone_sort_by);
     } elseif (LETTERSTART == 'all') {
@@ -122,43 +124,45 @@ if ($perm_view == "none") {
             $zone['count_records'] = 0;
         }
 
-        $zone_owners = get_fullnames_owners_from_domainid($zone['id']);
+        $zone_owners = do_hook('get_fullnames_owners_from_domainid', $zone['id']);
         if ($iface_zonelist_serial)
             $serial = get_serial_by_zid($zone['id']);
 
         if ($perm_edit != "all" || $perm_edit != "none") {
-            $user_is_zone_owner = verify_user_is_owner_zoneid($zone["id"]);
+            $user_is_zone_owner = do_hook('verify_user_is_owner_zoneid', $zone["id"]);
         }
         echo "         <tr>\n";
-        echo "          <td class=\"checkbox\">\n";
+        echo "          <td>\n";
         if ($count_zones_edit > 0 && ($perm_edit == "all" || ( $perm_edit == "own" && $user_is_zone_owner == "1"))) {
             echo "       <input type=\"checkbox\" name=\"zone_id[]\" value=\"" . $zone['id'] . "\">";
         }
         echo "          </td>\n";
-        echo "          <td class=\"actions\">\n";
-        echo "           <a href=\"edit.php?name=" . $zone['name'] . "&id=" . $zone['id'] . "\"><img src=\"images/edit.gif\" title=\"" . _('View zone') . " " . $zone['name'] . "\" alt=\"[ " . _('View zone') . " " . $zone['name'] . " ]\"></a>\n";
+        echo "          <td>\n";
+        echo "           <a class=\"btn btn-warning btn-sm\" role=\"button\" href=\"edit.php?name=" . $zone['name'] . "&id=" . $zone['id'] . "\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\" title=\"" . _('View zone') . " " . $zone['name'] . "\" alt=\"[ " . _('View zone') . " " . $zone['name'] . " ]\"></span></a>\n";
         if ($perm_edit == "all" || ( $perm_edit == "own" && $user_is_zone_owner == "1")) {
-            echo "           <a href=\"delete_domain.php?name=" . $zone['name'] . "&id=" . $zone["id"] . "\"><img src=\"images/delete.gif\" title=\"" . _('Delete zone') . " " . $zone['name'] . "\" alt=\"[ " . _('Delete zone') . " " . $zone['name'] . " ]\"></a>\n";
+            echo "           <a class=\"btn btn-danger btn-sm\" role=\"button\" href=\"delete_domain.php?name=" . $zone['name'] . "&id=" . $zone["id"] . "\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" title=\"" . _('Delete zone') . " " . $zone['name'] . "\" alt=\"[ " . _('Delete zone') . " " . $zone['name'] . " ]\"></span></a>\n";
         }
         echo "          </td>\n";
-        echo "          <td class=\"name\">" . $zone["name"] . "</td>\n";
-        echo "          <td class=\"type\">" . strtolower($zone["type"]) . "</td>\n";
-        echo "          <td class=\"count\">" . $zone["count_records"] . "</td>\n";
-        echo "          <td class=\"owner\">" . $zone_owners . "</td>\n";
+        echo "          <td>" . $zone["name"] . "</td>\n";
+        echo "          <td>" . strtolower($zone["type"]) . "</td>\n";
+        echo "          <td>" . $zone["count_records"] . "</td>\n";
+        echo "          <td>" . $zone_owners . "</td>\n";
         if ($iface_zonelist_serial) {
             if ($serial != "") {
-                echo "          <td class=\"y\">" . $serial . "</td>\n";
+                echo "          <td>" . $serial . "</td>\n";
             } else {
-                echo "          <td class=\"n\">&nbsp;</td>\n";
+                echo "          <td>&nbsp;</td>\n";
             }
         }
         if ($pdnssec_use) {
-            echo "          <td class=\"dnssec\"><input type=\"checkbox\" onclick=\"return false\" " . (dnssec_is_zone_secured($zone['name']) ? 'checked' : '') . "></td>\n";
+            echo "          <td><input type=\"checkbox\" onclick=\"return false\" " . (dnssec_is_zone_secured($zone['name']) ? 'checked' : '') . "></td>\n";
         }
         echo "           </tr>\n";
     }
+    echo "           </tbody>\n";
     echo "          </table>\n";
-    echo "      <input type=\"submit\" name=\"commit\" value=\"" . _('Delete zone(s)') . "\" class=\"button\">\n";
+    echo "     </div>\n";
+    echo "      <button type=\"submit\" name=\"commit\" class=\"btn btn-default\">" . _('Delete zone(s)') . "</button>\n";
     echo "     </form>\n";
 }
 

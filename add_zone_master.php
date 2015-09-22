@@ -73,8 +73,8 @@ if (isset($_POST['dnssec']) && $_POST['dnssec'] == '1') {
 /*
   Check user permissions
  */
-(verify_permission('zone_master_add')) ? $zone_master_add = "1" : $zone_master_add = "0";
-(verify_permission('user_view_others')) ? $perm_view_others = "1" : $perm_view_others = "0";
+(do_hook('verify_permission' , 'zone_master_add' )) ? $zone_master_add = "1" : $zone_master_add = "0";
+(do_hook('verify_permission' , 'user_view_others' )) ? $perm_view_others = "1" : $perm_view_others = "0";
 
 if (isset($_POST['submit']) && $zone_master_add == "1") {
     $error = false;
@@ -113,29 +113,29 @@ if (isset($_POST['submit']) && $zone_master_add == "1") {
 if ($zone_master_add != "1") {
     error(ERR_PERM_ADD_ZONE_MASTER);
 } else {
-    echo "     <h2>" . _('Add master zone') . "</h2>\n";
+    echo "   <h1 class=\"page-header\">" . _('Add master zone') . "</h1>\n";
 
     $available_zone_types = array("MASTER", "NATIVE");
-    $users = show_users();
+    $users = do_hook('show_users');
     $zone_templates = get_list_zone_templ($_SESSION['userid']);
-
-    echo "     <form method=\"post\" action=\"add_zone_master.php\">\n";
-    echo "      <table>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Zone name') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <ul id=\"domain_names\" style=\"list-style-type:none; padding:0 \">\n";
-    echo "          <li><input type=\"text\" class=\"input\" name=\"domain[]\" value=\"\" id=\"domain_1\"></li>\n";
-    echo "         </ol>\n";
-    echo "        </td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input class=\"button\" type=\"button\" value=\"Add another domain\" onclick=\"addField('domain_names','domain_',0);\" />\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Owner') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"owner\">\n";
+    echo "     <br>\n";
+    echo "     <form class=\"form-horizontal\" method=\"post\" action=\"add_zone_master.php\">\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"master_ip\" class=\"col-sm-2 control-label\">" . _('Zone name') . "</label>\n";
+    echo "        <div class=\"col-sm-5\">\n";
+    echo "         <ul class=\"list-unstyled list-spaced\" id=\"domain_names\">\n";
+    echo "          <li><input type=\"text\" class=\"form-control\" name=\"domain[]\" value=\"\" id=\"domain_1\"></li>\n";
+    echo "         </ul>\n";
+    echo "        </div>\n";
+    echo "        <div class=\"col-sm-2\">\n";
+    echo "         <input class=\"btn btn-default\" type=\"button\" value=\"Add another domain\" onclick=\"addField('domain_names','domain_',0);\" />\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"master_ip\" class=\"col-sm-2 control-label\">" . _('Owner') . "</label>\n";
+    echo "        <div class=\"col-sm-5\">\n";
+    echo "         <select class=\"form-control\" name=\"owner\">\n";
     /*
       Display list of users to assign zone to if creating
       user has the proper permission to do so.
@@ -148,45 +148,46 @@ if ($zone_master_add != "1") {
         }
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Type') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"dom_type\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"master_ip\" class=\"col-sm-2 control-label\">" . _('Type') . "</label>\n";
+    echo "        <div class=\"col-sm-5\">\n";
+    echo "         <select class=\"form-control\" name=\"dom_type\">\n";
     foreach ($available_zone_types as $type) {
         echo "          <option value=\"" . $type . "\">" . strtolower($type) . "</option>\n";
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "        <td>&nbsp;</td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Template') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"zone_template\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"master_ip\" class=\"col-sm-2 control-label\">" . _('Template') . "</label>\n";
+    echo "        <div class=\"col-sm-5\">\n";
+    echo "         <select class=\"form-control\" name=\"zone_template\">\n";
     echo "          <option value=\"none\">none</option>\n";
     foreach ($zone_templates as $zone_template) {
         echo "          <option value=\"" . $zone_template['id'] . "\">" . $zone_template['name'] . "</option>\n";
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "        <td>&nbsp;</td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('DNSSEC') . ":</td>\n";
-    echo "        <td class=\"n\"><input type=\"checkbox\" class=\"input\" name=\"dnssec\" value=\"1\"></td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Add zone') . "\" onclick=\"checkDomainFilled();return false;\">\n";
-    echo "        </td>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "       </tr>\n";
-    echo "      </table>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"master_ip\" class=\"col-sm-2 control-label\">" . _('DNSSEC') . "</label>\n";
+    echo "        <div class=\"col-sm-5\">\n";
+    echo "          <input type=\"checkbox\" class=\"input\" name=\"dnssec\" value=\"1\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    
+    echo "       <div class=\"form-group\">\n";
+    echo "        <div class=\"col-sm-offset-2 col-sm-5\">\n";
+    echo "         <input type=\"submit\" class=\"btn btn-default\" name=\"submit\" value=\"" . _('Add zone') . "\" onclick=\"checkDomainFilled();return false;\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
     echo "     </form>\n";
+
 }
 
 include_once("inc/footer.inc.php");

@@ -65,8 +65,8 @@ if (isset($_POST['zone_template'])) {
 /*
   Check user permissions
  */
-(verify_permission('zone_master_add')) ? $zone_master_add = "1" : $zone_master_add = "0";
-(verify_permission('user_view_others')) ? $perm_view_others = "1" : $perm_view_others = "0";
+(do_hook('verify_permission' , 'zone_master_add' )) ? $zone_master_add = "1" : $zone_master_add = "0";
+(do_hook('verify_permission' , 'user_view_others' )) ? $perm_view_others = "1" : $perm_view_others = "0";
 
 if (isset($_POST['submit']) && $zone_master_add == "1") {
     $error = false;
@@ -89,18 +89,17 @@ if (isset($_POST['submit']) && $zone_master_add == "1") {
 if ($zone_master_add != "1") {
     error(ERR_PERM_ADD_ZONE_MASTER);
 } else {
-    echo "     <h2>" . _('Bulk registration') . "</h2>\n";
+    echo "     <h1 class=\"page-header\">" . _('Bulk registration') . "</h1>\n";
 
     $available_zone_types = array("MASTER", "NATIVE");
-    $users = show_users();
+    $users = do_hook('show_users');
     $zone_templates = get_list_zone_templ($_SESSION['userid']);
 
-    echo "     <form method=\"post\" action=\"bulk_registration.php\">\n";
-    echo "      <table>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\" width=\"100\">" . _('Owner') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"owner\">\n";
+    echo "     <form class=\"form-horizontal\" method=\"post\" action=\"bulk_registration.php\">\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"owner\" class=\"col-sm-2 control-label\">" . _('Owner') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "         <select class=\"form-control\" name=\"owner\">\n";
     /*
       Display list of users to assign zone to if creating
       user has the proper permission to do so.
@@ -113,51 +112,44 @@ if ($zone_master_add != "1") {
         }
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Type') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"dom_type\">\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"dom_type\" class=\"col-sm-2 control-label\">" . _('Type') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "         <select class=\"form-control\" name=\"dom_type\">\n";
     foreach ($available_zone_types as $type) {
         echo "          <option value=\"" . $type . "\">" . strtolower($type) . "</option>\n";
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Template') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <select name=\"zone_template\">\n";
-    echo "          <option value=\"none\">none</option>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"zone_template\" class=\"col-sm-2 control-label\">" . _('Template') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "         <select class=\"form-control\" name=\"zone_template\">\n";
     foreach ($zone_templates as $zone_template) {
         echo "          <option value=\"" . $zone_template['id'] . "\">" . $zone_template['name'] . "</option>\n";
     }
     echo "         </select>\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Zones') . ":</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <ul id=\"domain_names\" style=\"list-style-type:none; padding:0 \">\n";
-    echo "		<li>" . _('Type one domain per line') . ":</li>\n";
-    echo "          <li><textarea class=\"input\" name=\"domains\" rows=\"10\" cols=\"30\" style=\"width: 500px;\">";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"zone_template\" class=\"col-sm-2 control-label\">" . _('Zones') . "</label>\n";
+    echo "        <div class=\"col-sm-10\">\n";
+    echo "          <p class=\"help-block\">" . _('Type one domain per line') . ":</p>\n";
+    echo "          <textarea class=\"form-control\" name=\"domains\" rows=\"9\" >";
     if (isset($error) && isset($_POST['domains'])) {
         echo $_POST['domains'];
     }
-    echo "</textarea></li>\n";
-    echo "         </ol>\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "        <td class=\"n\">\n";
-    echo "         <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Add zones') . "\">\n";
-    echo "        </td>\n";
-    echo "       </tr>\n";
-    echo "      </table>\n";
+    echo "</textarea>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <div class=\"col-sm-offset-2 col-sm-10\">\n";
+    echo "         <button type=\"submit\" name=\"submit\" class=\"btn btn-default\">" . _('Add zones') . "</button>\n";
+    echo "        </div>\n";
+    echo "       </div>\n";
     echo "     </form>\n";
 }
 

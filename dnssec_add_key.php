@@ -37,7 +37,7 @@ if (isset($_GET['id']) && v_num($_GET['id'])) {
     $zone_id = $_GET['id'];
 }
 
-$user_is_zone_owner = verify_user_is_owner_zoneid($zone_id);
+$user_is_zone_owner = do_hook('verify_user_is_owner_zoneid' , $zone_id );
 
 if ($user_is_zone_owner == "0") {
     error(ERR_PERM_VIEW_ZONE);
@@ -95,7 +95,7 @@ if (isset($_POST["submit"])) {
     }
 }
 
-echo "     <h2>" . _('Add key for zone '). $domain_name . "</h2>\n";
+echo "     <h1 class=\"page-header\">" . _('Add key for zone '). $domain_name . "</h1>\n";
 
 echo "     <form method=\"post\" action=\"dnssec_add_key.php?id=".$zone_id."\">\n";
 echo "      <table>\n";
@@ -141,7 +141,7 @@ echo "       </tr>\n";
 echo "       <tr>\n";
 echo "        <td class=\"n\">&nbsp;</td>\n";
 echo "        <td class=\"n\">\n";
-echo "         <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Add key') . "\">\n";
+echo "         <button type=\"submit\" class=\"btn btn-default btn-sm\" name=\"submit\">" . _('Add key') . "</button>\n";
 echo "        </td>\n";
 echo "       </tr>\n";
 echo "      </table>\n";

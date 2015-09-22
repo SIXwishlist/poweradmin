@@ -45,11 +45,11 @@ if ((isset($_GET['confirm'])) && v_num($_GET['confirm'])) {
 if ($perm_templ == "-1") {
     error(ERR_INV_INPUT);
 } else {
-    if (!(verify_permission('user_edit_templ_perm'))) {
+    if (!(do_hook('verify_permission' , 'user_edit_templ_perm' ))) {
         error(ERR_PERM_DEL_PERM_TEMPL);
     } else {
-        $templ_details = get_permission_template_details($perm_templ);
-        echo "     <h2>" . _('Delete permission template') . " \"" . $templ_details['name'] . "\"</h2>\n";
+        $templ_details = do_hook('get_permission_template_details' , $perm_templ );
+        echo "     <h1 class=\"page-header\">" . _('Delete permission template') . " \"" . $templ_details['name'] . "\"</h1>\n";
 
         if (isset($_GET['confirm']) && $_GET["confirm"] == '1') {
             if (delete_perm_templ($perm_templ)) {
@@ -57,8 +57,8 @@ if ($perm_templ == "-1") {
             }
         } else {
             echo "     <p>" . _('Are you sure?') . "</p>\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='delete_perm_templ.php?id=" . $perm_templ . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='delete_perm_templ.php?id=" . $perm_templ . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
         }
     }
 }

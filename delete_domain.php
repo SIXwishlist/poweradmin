@@ -34,9 +34,9 @@ include_once("inc/header.inc.php");
 
 global $pdnssec_use;
 
-if (verify_permission('zone_content_edit_others')) {
+if (do_hook('verify_permission' , 'zone_content_edit_others' )) {
     $perm_edit = "all";
-} elseif (verify_permission('zone_content_edit_own')) {
+} elseif (do_hook('verify_permission' , 'zone_content_edit_own' )) {
     $perm_edit = "own";
 } else {
     $perm_edit = "none";
@@ -57,8 +57,8 @@ if (!$zone_info) {
     header("Location: list_zones.php");
     exit;
 }
-$zone_owners = get_fullnames_owners_from_domainid($zone_id);
-$user_is_zone_owner = verify_user_is_owner_zoneid($zone_id);
+$zone_owners = do_hook('get_fullnames_owners_from_domainid' , $zone_id );
+$user_is_zone_owner = do_hook('verify_user_is_owner_zoneid' , $zone_id );
 
 if ($zone_id == "-1") {
     error(ERR_INV_INPUT);
@@ -66,10 +66,10 @@ if ($zone_id == "-1") {
     exit;
 }
 
-echo "     <h2>" . _('Delete zone') . " \"" . $zone_info['name'] . "\"</h2>\n";
+echo "     <h1 class=\"page-header\">" . _('Delete zone') . " \"" . $zone_info['name'] . "\"</h1>\n";
 
 if ($confirm == '1') {
-    if ($zone_info['type'] == 'MASTER') {
+    if ($pdnssec_use && $zone_info['type'] == 'MASTER') {
         $zone_name = get_zone_name_from_id($zone_id);
         dnssec_unsecure_zone($zone_name);
     }
@@ -93,8 +93,8 @@ if ($confirm == '1') {
             }
         }
         echo "     <p>" . _('Are you sure?') . "</p>\n";
-        echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='delete_domain.php?id=" . $zone_id . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
-        echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
+        echo "     <button type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='delete_domain.php?id=" . $zone_id . "&amp;confirm=1'\">" . _('Yes') . "</button>\n";
+        echo "     <button type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='index.php'\">" . _('No') . "</button>\n";
     } else {
         error(ERR_PERM_DEL_ZONE);
     }

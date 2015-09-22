@@ -32,58 +32,71 @@
 require_once("inc/toolkit.inc.php");
 include_once("inc/header.inc.php");
 
-if (!verify_permission('user_add_new')) {
+if (!do_hook('verify_permission' , 'user_add_new' )) {
     error(ERR_PERM_ADD_USER);
 } else {
     if (isset($_POST["commit"])) {
-        if (add_new_user($_POST)) {
+        if (do_hook('add_new_user' , $_POST )) {
             success(SUC_USER_ADD);
         }
     }
 
-    echo "     <h2>" . _('Add user') . "</h2>\n";
-    echo "     <form method=\"post\" action=\"add_user.php\">\n";
-    echo "      <table>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Username') . "</td>\n";
-    echo "        <td class=\"n\"><input type=\"text\" class=\"input\" name=\"username\" value=\"\"></td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Fullname') . "</td>\n";
-    echo "        <td class=\"n\"><input type=\"text\" class=\"input\" name=\"fullname\" value=\"\"></td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Password') . "</td>\n";
-    echo "        <td class=\"n\"><input type=\"password\" class=\"input\" name=\"password\"></td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Email address') . "</td>\n";
-    echo "        <td class=\"n\"><input type=\"text\" class=\"input\" name=\"email\" value=\"\"></td>\n";
-    echo "       </tr>\n";
-    if (verify_permission('user_edit_templ_perm')) {
-        echo "       <tr>\n";
-        echo "        <td class=\"n\">" . _('Permission template') . "</td>\n";
-        echo "        <td class=\"n\">\n";
-        echo "         <select name=\"perm_templ\">\n";
-        foreach (list_permission_templates() as $template) {
-            echo "          <option value=\"" . $template['id'] . "\">" . $template['name'] . "</option>\n";
+    echo "     <h1 class=\"page-header\">" . _('Add user') . "</h1>\n";
+    echo "     <form class=\"form-horizontal\" method=\"post\" action=\"add_user.php\">\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"username\" class=\"col-sm-2 control-label\">" . _('Username') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" name=\"username\" value=\"\">\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"fullname\" class=\"col-sm-2 control-label\">" . _('Fullname') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" name=\"fullname\" value=\"\">\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"password\" class=\"col-sm-2 control-label\">" . _('Password') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"password\" class=\"form-control\" name=\"password\" value=\"\">\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"email\" class=\"col-sm-2 control-label\">" . _('Email address') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <input type=\"text\" class=\"form-control\" name=\"email\" value=\"\">\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    if (do_hook('verify_permission' , 'user_edit_templ_perm' )) {
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"perm_templ\" class=\"col-sm-2 control-label\">" . _('Permission template') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <select class=\"form-control\" name=\"perm_templ\">\n";
+        foreach (do_hook('list_permission_templates' ) as $template) {
+    echo "          <option value=\"" . $template['id'] . "\">" . $template['name'] . "</option>\n";
         }
-        echo "         </select>\n";
-        echo "       </td>\n";
-        echo "       </tr>\n";
+    echo "         </select>\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
     }
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Description') . "</td>\n";
-    echo "        <td class=\"n\"><textarea rows=\"4\" cols=\"30\" class=\"inputarea\" name=\"descr\"></textarea></td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">" . _('Enabled') . "</td>\n";
-    echo "        <td class=\"n\"><input type=\"checkbox\" class=\"input\" name=\"active\" value=\"1\" CHECKED></td>\n";
-    echo "       </tr>\n";
-    echo "       <tr>\n";
-    echo "        <td class=\"n\">&nbsp;</td>\n";
-    echo "        <td class=\"n\"><input type=\"submit\" class=\"button\" name=\"commit\" value=\"" . _('Commit changes') . "\"></td>\n";
-    echo "      </table>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "        <label for=\"descr\" class=\"col-sm-2 control-label\">" . _('Description') . "</label>\n";
+    echo "         <div class=\"col-sm-10\">\n";
+    echo "         <textarea class=\"form-control\" rows=\"3\" name=\"descr\"></textarea>\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "       <div class=\"col-sm-offset-2 col-sm-10\">\n";
+    echo "         <div class=\"checkbox\">\n";
+    echo "         <label><input type=\"checkbox\" name=\"active\" value=\"1\" CHECKED>" . _('Enabled') . "</label>\n";
+    echo "         </div>\n";
+    echo "        </div>\n";
+    echo "        </div>\n";
+    echo "       <div class=\"form-group\">\n";
+    echo "       <div class=\"col-sm-offset-2 col-sm-10\">\n";
+    echo "        <button type=\"submit\" name=\"commit\" class=\"btn btn-default\">" . _('Commit changes') . "</button>\n";
+    echo "        </div>\n";
+    echo "        </div>\n";
     echo "     </form>\n";
 }
 

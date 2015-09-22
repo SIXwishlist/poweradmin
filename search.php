@@ -32,26 +32,26 @@
 require_once('inc/toolkit.inc.php');
 include_once('inc/header.inc.php');
 
-if (!(verify_permission('search'))) {
+if (!(do_hook('verify_permission', 'search'))) {
     error(ERR_PERM_SEARCH);
     include_once('inc/footer.inc.php');
     exit;
 } else {
-    echo "     <h2>" . _('Search zones and records') . "</h2>\n";
+    echo "     <h1 class=\"page-header\">" . _('Search zones and records') . "</h1>\n";
     $holy_grail = '';
     if (isset($_POST['query'])) {
 
-        if (verify_permission('zone_content_view_others')) {
+        if (do_hook('verify_permission', 'zone_content_view_others')) {
             $perm_view = "all";
-        } elseif (verify_permission('zone_content_view_own')) {
+        } elseif (do_hook('verify_permission', 'zone_content_view_own')) {
             $perm_view = "own";
         } else {
             $perm_view = "none";
         }
 
-        if (verify_permission('zone_content_edit_others')) {
+        if (do_hook('verify_permission', 'zone_content_edit_others')) {
             $perm_edit = "all";
-        } elseif (verify_permission('zone_content_edit_own')) {
+        } elseif (do_hook('verify_permission', 'zone_content_edit_own')) {
             $perm_edit = "own";
         } else {
             $perm_edit = "none";
@@ -73,11 +73,13 @@ if (!(verify_permission('search'))) {
             echo "     }\n";
             echo "     -->\n";
             echo "     </script>\n";
-            echo "     <form name=\"sortby_zone_form\" method=\"post\" action=\"search.php\">\n";
+            echo "     <form class=\"form-inline\" name=\"sortby_zone_form\" method=\"post\" action=\"search.php\">\n";
             echo "     <input type=\"hidden\" name=\"query\" value=\"" . $_POST['query'] . "\" />\n";
             echo "     <input type=\"hidden\" name=\"zone_sort_by\" />\n";
-            echo "     <h3>" . _('Zones found') . ":</h3>\n";
-            echo "     <table>\n";
+            echo "     <h2 class=\"sub-header\">" . _('Zones found') . ":</h2>\n";
+            echo "     <div class=\"table-responsive\">\n";
+            echo "     <table class=\"table table-hover table-condensed\">\n";
+            echo "      <thead>\n";
             echo "      <tr>\n";
             echo "       <th>&nbsp;</th>\n";
             echo "       <th><a href=\"javascript:zone_sort_by('name')\">" . _('Name') . "</a></th>\n";
@@ -89,17 +91,18 @@ if (!(verify_permission('search'))) {
             }
 
             echo "      </tr>\n";
+            echo "      </thead>\n";
             echo "      </form>\n";
-
+            echo "      <tbody>\n";
             foreach ($result['zones'] as $zone) {
                 echo "      <tr>\n";
                 echo "          <td>\n";
-                echo "           <a href=\"edit.php?name=" . $zone['name'] . "&id=" . $zone['zid'] . "\"><img src=\"images/edit.gif\" title=\"" . _('Edit zone') . " " . $zone['name'] . "\" alt=\"[ " . _('Edit zone') . " " . $zone['name'] . " ]\"></a>\n";
+                echo "           <a class=\"btn btn-warning btn-sm\" role=\"button\" href=\"edit.php?name=" . $zone['name'] . "&id=" . $zone['zid'] . "\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\" title=\"" . _('Edit zone') . " " . $zone['name'] . "\" alt=\"[ " . _('Edit zone') . " " . $zone['name'] . " ]\"></span></a>\n";
                 if ($perm_edit != "all" || $perm_edit != "none") {
-                    $user_is_zone_owner = verify_user_is_owner_zoneid($zone['zid']);
+                    $user_is_zone_owner = do_hook('verify_user_is_owner_zoneid', $zone['zid']);
                 }
                 if ($perm_edit == "all" || ( $perm_edit == "own" && $user_is_zone_owner == "1")) {
-                    echo "           <a href=\"delete_domain.php?name=" . $zone['name'] . "&id=" . $zone['zid'] . "\"><img src=\"images/delete.gif\" title=\"" . _('Delete zone') . " " . $zone['name'] . "\" alt=\"[ " . _('Delete zone') . " " . $zone['name'] . " ]\"></a>\n";
+                    echo "           <a class=\"btn btn-danger btn-sm\" role=\"button\" href=\"delete_domain.php?name=" . $zone['name'] . "&id=" . $zone['zid'] . "\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" title=\"" . _('Delete zone') . " " . $zone['name'] . "\" alt=\"[ " . _('Delete zone') . " " . $zone['name'] . " ]\"></span></a>\n";
                 }
                 echo "          </td>\n";
                 echo "       <td>" . $zone['name'] . "</td>\n";
@@ -114,7 +117,9 @@ if (!(verify_permission('search'))) {
                 }
                 echo "      </tr>\n";
             }
+            echo "      </tbody>\n";
             echo "     </table>\n";
+            echo "     </div>\n";
         }
 
         if (is_array($result['records'])) {
@@ -127,11 +132,13 @@ if (!(verify_permission('search'))) {
             echo "     }\n";
             echo "     -->\n";
             echo "     </script>\n";
-            echo "     <form name=\"sortby_record_form\" method=\"post\" action=\"search.php\">\n";
+            echo "     <form class=\"form-inline\" name=\"sortby_record_form\" method=\"post\" action=\"search.php\">\n";
             echo "     <input type=\"hidden\" name=\"query\" value=\"" . $_POST['query'] . "\" />\n";
             echo "     <input type=\"hidden\" name=\"record_sort_by\" />\n";
-            echo "     <h3>" . _('Records found') . ":</h3>\n";
-            echo "     <table>\n";
+            echo "     <h2 class=\"sub-header\">" . _('Records found') . ":</h2>\n";
+            echo "     <div class=\"table-responsive\">\n";
+            echo "     <table class=\"table table-hover table-condensed\">\n";
+            echo "      <thead>\n";
             echo "      <tr>\n";
             echo "       <th>&nbsp;</th>\n";
             echo "       <th><a href=\"javascript:record_sort_by('name')\">" . _('Name') . "</a></th>\n";
@@ -140,18 +147,20 @@ if (!(verify_permission('search'))) {
             echo "       <th>Priority</th>\n";
             echo "       <th><a href=\"javascript:record_sort_by('ttl')\">" . _('TTL') . "</a></th>\n";
             echo "      </tr>\n";
+            echo "      </thead>\n";
             echo "      </form>\n";
-
+            echo "      <tbody>\n";
+            
             foreach ($result['records'] as $record) {
 
                 echo "      <tr>\n";
                 echo "          <td>\n";
-                echo "           <a href=\"edit_record.php?id=" . $record['rid'] . "\"><img src=\"images/edit.gif\" title=\"" . _('Edit record') . " " . $record['name'] . "\" alt=\"[ " . _('Edit record') . " " . $record['name'] . " ]\"></a>\n";
+                echo "           <a class=\"btn btn-warning btn-sm\" role=\"button\" href=\"edit_record.php?id=" . $record['rid'] . "\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\" title=\"" . _('Edit record') . " " . $record['name'] . "\" alt=\"[ " . _('Edit record') . " " . $record['name'] . " ]\"></span></a>\n";
                 if ($perm_edit != "all" || $perm_edit != "none") {
-                    $user_is_zone_owner = verify_user_is_owner_zoneid($record['zid']);
+                    $user_is_zone_owner = do_hook('verify_user_is_owner_zoneid', $record['zid']);
                 }
                 if ($perm_edit == "all" || ( $perm_edit == "own" && $user_is_zone_owner == "1")) {
-                    echo "           <a href=\"delete_record.php?id=" . $record['rid'] . "\"><img src=\"images/delete.gif\" title=\"" . _('Delete record') . " " . $record['name'] . "\" alt=\"[ " . _('Delete record') . " " . $record['name'] . " ]\"></a>\n";
+                    echo "           <a class=\"btn btn-danger btn-sm\" role=\"button\" href=\"delete_record.php?id=" . $record['rid'] . "\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" title=\"" . _('Delete record') . " " . $record['name'] . "\" alt=\"[ " . _('Delete record') . " " . $record['name'] . " ]\"></span></a>\n";
                 }
                 echo "          </td>\n";
                 echo "       <td>" . $record['name'] . "</td>\n";
@@ -165,30 +174,41 @@ if (!(verify_permission('search'))) {
                 echo "       <td>" . $record['ttl'] . "</td>\n";
                 echo "      </tr>\n";
             }
+            echo "      </tbody>\n";
             echo "     </table>\n";
+            echo "     </div>\n";
         }
     } else { // !isset($_POST['query'])
         $wildcards = true;
         $arpa = true;
     }
 
-    echo "     <h3>" . _('Query') . ":</h3>\n";
+    // echo "     <h3>" . _('Query') . ":</h3>\n";
     echo "      <form method=\"post\" action=\"" . htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES) . "\">\n";
-    echo "       <table>\n";
-    echo "        <tr>\n";
-    echo "         <td>\n";
-    echo "          <input type=\"text\" class=\"input\" name=\"query\" value=\"" . $holy_grail . "\">&nbsp;\n";
-    echo "          <input type=\"submit\" class=\"button\" name=\"submit\" value=\"" . _('Search') . "\">\n";
-    echo "          <input type=\"checkbox\" class=\"input\" name=\"wildcards\" value=\"true\"" . ($wildcards ? "checked=\"checked\"" : "") . ">" . _('Wildcard') . "\n";
-    echo "          <input type=\"checkbox\" class=\"input\" name=\"arpa\" value=\"true\"" . ($arpa ? "checked=\"checked\"" : "") . ">" . _('Reverse') . "\n";
-    echo "         </td>\n";
-    echo "        </tr>\n";
-    echo "        <tr>\n";
-    echo "         <td>\n";
-    echo "          " . _('Enter a hostname or IP address. SQL LIKE syntax supported: an underscore (_) in pattern matches any single character, a percent sign (%) matches any string of zero or more characters.') . "\n";
-    echo "         </td>\n";
-    echo "        </tr>\n";
-    echo "       </table>\n";
+    echo "      <div class=\"row\">\n";
+    echo "      <div class=\"col-lg-6\">\n";
+    echo "       <div class=\"input-group\">\n";
+    echo "        <input type=\"text\" class=\"form-control\" name=\"query\" value=\"" . $holy_grail . "\">\n";
+    echo "         <span class=\"input-group-btn\">\n";
+    echo "          <button type=\"submit\" class=\"btn btn-default\">" . _('Search') . "</button>\n";
+    echo "         </span>\n";
+    echo "       </div>\n";
+    echo "       </div>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"checkbox\">\n";
+    echo "        <label>\n";
+    echo "         <input type=\"checkbox\" name=\"wildcards\" value=\"true\"" . ($wildcards ? "checked=\"checked\"" : "") . "> " . _('Wildcard') . "\n";
+    echo "        </label>\n";
+    echo "       </div>\n";
+    echo "       <div class=\"checkbox\">\n";
+    echo "        <label>\n";
+    echo "         <input type=\"checkbox\" name=\"arpa\" value=\"true\"" . ($arpa ? "checked=\"checked\"" : "") . "> " . _('Reverse') . "\n";
+    echo "        </label>\n";
+    echo "       </div>\n";
+    echo "       <p class=\"help-block\">\n";
+    echo "       " . _('Enter a hostname or IP address. SQL LIKE syntax supported: an underscore (_) in pattern matches any single character, a percent sign (%) matches any string of zero or more characters.') . "\n";
+    echo "       </p>\n";
     echo "      </form>\n";
 }
+
 include_once('inc/footer.inc.php');

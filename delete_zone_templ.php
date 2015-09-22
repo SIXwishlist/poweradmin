@@ -46,19 +46,19 @@ $owner = get_zone_templ_is_owner($zone_templ_id, $_SESSION['userid']);
 if ($zone_templ_id == "-1") {
     error(ERR_INV_INPUT);
 } else {
-    if (!verify_permission('zone_master_add') || !$owner) {
+    if (!do_hook('verify_permission' , 'zone_master_add' ) || !$owner) {
         error(ERR_PERM_DEL_ZONE_TEMPL);
     } else {
         $templ_details = get_zone_templ_details($zone_templ_id);
-        echo "     <h2>" . _('Delete zone template') . " \"" . $templ_details['name'] . "\"</h2>\n";
+        echo "     <h1 class=\"page-header\">" . _('Delete zone template') . " \"" . $templ_details['name'] . "\"</h1>\n";
 
         if (isset($_GET['confirm']) && $_GET["confirm"] == '1') {
             delete_zone_templ($zone_templ_id);
             success(SUC_ZONE_TEMPL_DEL);
         } else {
             echo "     <p>" . _('Are you sure?') . "</p>\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='delete_zone_templ.php?id=" . $zone_templ_id . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
-            echo "     <input type=\"button\" class=\"button\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='delete_zone_templ.php?id=" . $zone_templ_id . "&amp;confirm=1'\" value=\"" . _('Yes') . "\">\n";
+            echo "     <input type=\"button\" class=\"btn btn-default\" OnClick=\"location.href='index.php'\" value=\"" . _('No') . "\">\n";
         }
     }
 }
