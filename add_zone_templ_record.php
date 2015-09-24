@@ -103,7 +103,7 @@ if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
 } else {
     echo "     <form class=\"form-inline\" method=\"post\">\n";
     echo "      <input type=\"hidden\" name=\"domain\" value=\"" . $zone_templ_id . "\">\n";
-    echo "     <div class=\"table-responsive\">\n";
+    echo "     <div class=\"table-responsive table-condensed\">\n";
     echo "      <table class=\"table\">\n";
     echo "      <thead>\n";
     echo "       <tr>\n";
@@ -116,10 +116,10 @@ if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
     echo "      </thead>\n";
     echo "      <tbody>\n";
     echo "       <tr>\n";
-    echo "        <td><input type=\"text\" class=\"form-control\" name=\"name\" value=\"" . $name . "\"></td>\n";
+    echo "        <td><input type=\"text\" class=\"form-control input-sm\" name=\"name\" value=\"" . $name . "\"></td>\n";
     echo "        <td>\n";
     echo "        <label>IN</label>\n";
-    echo "         <select class=\"form-control\" name=\"type\">\n";
+    echo "         <select class=\"form-control input-sm\" name=\"type\">\n";
     $found_selected_type = !(isset($type) && $type);
     foreach (get_record_types() as $record_type) {
         if (isset($type) && $type) {
@@ -145,9 +145,9 @@ if (!(do_hook('verify_permission' , 'zone_master_add' )) || !$owner) {
         echo "          <option SELECTED value=\"" . htmlspecialchars($type) . "\"><i>" . htmlspecialchars($type) . "</i></option>\n";
     echo "         </select>\n";
     echo "        </td>\n";
-    echo "        <td><input class=\"form-control\" type=\"text\" name=\"content\" value=\"" . $content . "\"></td>\n";
-    echo "        <td><input class=\"form-control\" type=\"text\" name=\"prio\" value=\"" . $prio . "\"></td>\n";
-    echo "        <td><input class=\"form-control\" type=\"text\" name=\"ttl\" value=\"" . $ttl . "\"</td>\n";
+    echo "        <td><input class=\"form-control input-sm\" type=\"text\" name=\"content\" value=\"" . $content . "\"></td>\n";
+    echo "        <td><input class=\"form-control input-sm\" type=\"text\" name=\"prio\" value=\"" . $prio . "\"></td>\n";
+    echo "        <td><input class=\"form-control input-sm\" type=\"text\" name=\"ttl\" value=\"" . $ttl . "\"</td>\n";
     echo "       </tr>\n";
     echo "     <tr>\n";
     echo "      <td colspan=\"5\"><br><b>Hint:</b></td>\n";
